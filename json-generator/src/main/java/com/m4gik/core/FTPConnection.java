@@ -8,11 +8,13 @@ package com.m4gik.core;
 import java.io.IOException;
 
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPFile;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 /**
- * TODO COMMENTS MISSING!
+ * This class is responsible for operation on FTP server, provides connection
+ * and files operations.
  * 
  * @author m4gik <michal.szczygiel@wp.pl>
  * 
@@ -20,22 +22,24 @@ import org.apache.log4j.Logger;
 public class FTPConnection {
 
     /**
-     * 
+     * This logger is responsible for the registration of events.
      */
-    static final Logger logger = Logger.getLogger(FTPConnection.class);
+    static final Logger logger = LogManager.getLogger(FTPConnection.class
+            .getName());
 
     /**
-     * 
+     * The object for FTP connection, based on {@link FTPClient}.
      */
     private FTPClient ftp = null;
 
     /**
-     * 
+     * The variable for timeout connection.
      */
     private Long timeout;
 
     /**
-     * 
+     * The constructor for {@link FTPConnection}. This constructor connects with
+     * FTP server.
      */
     public FTPConnection(String server, String username, String password,
             Boolean keepConnectionAlive, Long timeout) {
@@ -45,33 +49,22 @@ public class FTPConnection {
     }
 
     /**
+     * This method makes FTP connection with server.
      * 
      * @param server
      * @param username
      * @param password
      * @param keepConnectionAlive
-     * @return
+     * @return set up FTPClient connection.
      */
     private FTPClient getFtpConnection(String server, String username,
-            String password, boolean keepConnectionAlive) {
+            String password, Boolean keepConnectionAlive) {
         FTPClient ftp = null;
 
         try {
             ftp = new FTPClient();
             ftp.connect(server);
-
-            logger.debug("ftp reply = "
-                    + FTPReply.isPositiveCompletion(ftp.getReplyCode()));
-
-            if (!FTPReply.isPositiveCompletion(ftp.getReplyCode())) {
-                ftp.disconnect();
-                return null;
-            }
-
-            logger.debug("ftp login=" + ftp.login(username, password));
-            logger.debug("timeout=" + getTimeout());
-            logger.debug("keepConnectionALive=" + keepConnectionAlive);
-
+            ftp.enterLocalPassiveMode();
             if (!ftp.login(username, password)) {
                 return null;
             }
@@ -109,6 +102,22 @@ public class FTPConnection {
      */
     public Long getTimeout() {
         return timeout;
+    }
+
+    /**
+     * This method lists and displays all files from current path.
+     * 
+     * @param path
+     */
+    public void listFiles(String path) {
+        try {
+            for (FTPFile file : ftp.listFiles(path)) {
+                logger.debug(file.getName());
+            }
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        }
     }
 
     /**
