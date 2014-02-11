@@ -8,6 +8,10 @@
 	<name>json-generator</name>
 	
 	<url>http://maven.apache.org</url>
+	
+	 <properties>
+	 	<log4j.properties.directory>src/main/java</log4j.properties.directory>
+	 </properties>
 
 	<repositories>
 		<repository>
@@ -71,4 +75,16 @@
 		</dependency>
 	
 	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${log4j.properties.directory}</directory>
+				<includes>
+					<include>log4j.properties</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+	
 </project>

@@ -5,7 +5,6 @@
  */
 package com.m4gik;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
@@ -30,7 +29,7 @@ public class Main {
      * This method contains configuration for this application.
      */
     private static void initConfiguration() {
-        BasicConfigurator.configure();
+        // BasicConfigurator.configure();
     }
 
     /**
@@ -65,9 +64,22 @@ public class Main {
         if (args.length == 4) {
             FTPConnection ftpConn = initConnection(args[0], args[1], args[2]);
             ftpConn.listFiles(args[3]);
+            ftpConn.retrieveFiles(args[3]);
+        } else if (false) {
+            // Loading from properties file.
         } else {
-            logger.error("");
-            System.out.println("...");
+            logger.debug("The application needs 4 arguments: "
+                    + "\n- server address \n- login \n- password \n- path to files\n");
+            System.out
+                    .println("Do uruchomienia aplikacja potrzebuje 4 argumenty:");
+            System.out.println("- adres serwera");
+            System.out.println("- nazwa użytkownika");
+            System.out.println("- hasło");
+            System.out.println("- ścieżka do plików audio (Jeśli foldery są "
+                    + "zagnieżdzone, to należy podać ten znajdujący"
+                    + " się najwyżej w fierarchi folderowej\n");
+            System.out.println("Przykład użycia:");
+            System.out.println("\t ftp.serwer.pl admin admin1 /public/muzyka");
         }
     }
 }
