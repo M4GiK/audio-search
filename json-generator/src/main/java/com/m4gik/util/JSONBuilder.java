@@ -118,7 +118,7 @@ public class JSONBuilder {
         information.put("update", getCurrentDateTime());
         information.put("file name", JSON_FILE);
         information.put("author", "Michał Szczygieł");
-        information.put("conntact", "michal.szczygiel@wp.pl");
+        information.put("contact", "michal.szczygiel@wp.pl");
         library.put("_comment", information);
 
         return new ByteArrayInputStream(library.toJSONString().getBytes());

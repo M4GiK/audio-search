@@ -56,6 +56,8 @@ public class FTPConnection {
      */
     private FTPClient ftp = null;
 
+    private Boolean isLibraryChecked = false;
+
     /**
      * The variable for timeout connection.
      */
@@ -69,9 +71,15 @@ public class FTPConnection {
     public FTPConnection(String server, String username, String password,
             Boolean keepConnectionAlive, Long timeout, String path) {
         setTimeout(timeout);
+
+        logger.debug("Connecting to " + server);
         this.ftp = getFtpConnection(server, username, password,
                 keepConnectionAlive);
+        logger.debug("Connected to " + server);
+
+        logger.debug("Counting audio files in directory" + path);
         this.audioAmount = countAudio(path);
+        logger.debug("Audio files counted - " + this.audioAmount + " files");
 
         logger.debug("Checking library");
         if (checkJsonFile(path)) {
@@ -110,20 +118,21 @@ public class FTPConnection {
      * @param path
      */
     private Boolean checkJsonFile(String path) {
-        Boolean isChecks = false;
         FileOutputStream outStream = null;
 
         try {
             outStream = new FileOutputStream(JSONBuilder.TEMP
                     + JSONBuilder.JSON_FILE);
 
-            if (ftp.retrieveFile(path, outStream) == true) {
-                isChecks = true;
+            if (ftp.retrieveFile(path + JSONBuilder.JSON_FILE, outStream) == true) {
+                isLibraryChecked = true;
             } else {
                 storeFile(new JSONBuilder().initLibrary(), path
                         + JSONBuilder.JSON_FILE);
                 checkJsonFile(path);
             }
+
+            outStream.close();
 
         } catch (FileNotFoundException e) {
             logger.error(e);
@@ -133,7 +142,7 @@ public class FTPConnection {
             logger.debug(ioe);
         }
 
-        return isChecks;
+        return isLibraryChecked;
     }
 
     /**
@@ -370,6 +379,7 @@ public class FTPConnection {
      */
     public void storeFile(InputStream inputStream, String path) {
         try {
+            logger.debug("Creating JSON library on server");
             ftp.storeFile(path, inputStream);
 
             if (!(ftp.getReplyCode() == 226)) {
