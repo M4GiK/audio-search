@@ -8,6 +8,7 @@ package com.m4gik.core;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.net.ftp.FTP;
@@ -15,6 +16,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+
+import com.m4gik.util.JSONBuilder;
 
 import de.vdheide.mp3.FrameDamagedException;
 import de.vdheide.mp3.ID3v2DecompressionException;
@@ -39,6 +42,16 @@ public class FTPConnection {
             .getName());
 
     /**
+     * The variable store amount of audio files.
+     */
+    private Integer audioAmount = 0;
+
+    /**
+     * The variable store counted amount of audio files.
+     */
+    private Integer currentAmount = 0;
+
+    /**
      * The object for FTP connection, based on {@link FTPClient}.
      */
     private FTPClient ftp = null;
@@ -50,13 +63,103 @@ public class FTPConnection {
 
     /**
      * The constructor for {@link FTPConnection}. This constructor connects with
-     * FTP server.
+     * FTP server, counts amount of all files in given directory and checks JSON
+     * library on server, if library does not existing create one.
      */
     public FTPConnection(String server, String username, String password,
-            Boolean keepConnectionAlive, Long timeout) {
+            Boolean keepConnectionAlive, Long timeout, String path) {
         setTimeout(timeout);
         this.ftp = getFtpConnection(server, username, password,
                 keepConnectionAlive);
+        this.audioAmount = countAudio(path);
+
+        logger.debug("Checking library");
+        if (checkJsonFile(path)) {
+            logger.debug("Library checked");
+        } else {
+            logger.debug("Checking failed");
+            logger.error("Checking failed");
+            System.exit(1);
+        }
+    }
+
+    /**
+     * This method checks if file contain given extension.
+     * 
+     * @param fileName
+     *            The file name to check.
+     * @param extension
+     *            The extensions which is compare with fileName.
+     * @return True if fileName contain given extension, if not return false.
+     */
+    private Boolean checkExtension(String fileName, String extension) {
+        Boolean isProperExtension = false;
+        Integer i = fileName.lastIndexOf('.');
+
+        if (i > 0) {
+            if (extension.equalsIgnoreCase(fileName.substring(i + 1))) {
+                isProperExtension = true;
+            }
+        }
+
+        return isProperExtension;
+    }
+
+    /**
+     * 
+     * @param path
+     */
+    private Boolean checkJsonFile(String path) {
+        Boolean isChecks = false;
+        FileOutputStream outStream = null;
+
+        try {
+            outStream = new FileOutputStream(JSONBuilder.TEMP
+                    + JSONBuilder.JSON_FILE);
+
+            if (ftp.retrieveFile(path, outStream) == true) {
+                isChecks = true;
+            } else {
+                storeFile(new JSONBuilder().initLibrary(), path
+                        + JSONBuilder.JSON_FILE);
+                checkJsonFile(path);
+            }
+
+        } catch (FileNotFoundException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        }
+
+        return isChecks;
+    }
+
+    /**
+     * This method counts amount of audio file in given directory.
+     * 
+     * @param path
+     *            The path of directory.
+     * @return Amount of audio files.
+     */
+    private Integer countAudio(String path) {
+        Integer amount = 0;
+
+        try {
+            for (FTPFile file : ftp.listFiles(path)) {
+                if (file.isFile() && checkExtension(file.getName(), "mp3")) {
+                    amount++;
+                } else if (isFolder(file)) {
+                    amount += countAudio(path + "/" + file.getName());
+                }
+            }
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        }
+
+        return amount;
     }
 
     /**
@@ -150,6 +253,25 @@ public class FTPConnection {
     }
 
     /**
+     * This method checks if given file is folder.
+     * 
+     * @param file
+     * 
+     * @return True if given file is folder, false if not.
+     */
+    private Boolean isFolder(FTPFile file) {
+        Boolean isFolder = false;
+
+        if (file.isDirectory()) {
+            if (!file.getName().equals(".") && !file.getName().equals("..")) {
+                isFolder = true;
+            }
+        }
+
+        return isFolder;
+    }
+
+    /**
      * This method lists and displays all files from current path.
      * 
      * @param path
@@ -163,6 +285,16 @@ public class FTPConnection {
             logger.error(ioe);
             logger.debug(ioe);
         }
+    }
+
+    /**
+     * This method
+     * 
+     * @param currentAmount
+     * @return
+     */
+    private Double progressPercentage(Integer currentAmount) {
+        return ((100.0 * currentAmount) / audioAmount) / 100.0;
     }
 
     /**
@@ -204,13 +336,15 @@ public class FTPConnection {
      * @param path
      */
     public void retrieveFiles(String path) {
+
         try {
             for (FTPFile file : ftp.listFiles(path)) {
                 if (file.isFile()) {
+                    updateProgress(progressPercentage(currentAmount++));
                     // retrieveFile(file, path);
-                    getMP3File(file, "FtpFiles/");
-                } else if (file.isDirectory()) {
-                    // Recursive search
+                    // getMP3File(file, "FtpFiles/");
+                } else if (isFolder(file)) {
+                    retrieveFiles(path + "/" + file.getName());
                 }
             }
         } catch (IOException ioe) {
@@ -227,5 +361,47 @@ public class FTPConnection {
      */
     public void setTimeout(Long timeout) {
         this.timeout = timeout;
+    }
+
+    /**
+     * 
+     * @param inputStream
+     * @param path
+     */
+    public void storeFile(InputStream inputStream, String path) {
+        try {
+            ftp.storeFile(path, inputStream);
+
+            if (!(ftp.getReplyCode() == 226)) {
+                System.out.println(ftp.getReplyString());
+                System.exit(1);
+            }
+
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        }
+    }
+
+    /**
+     * This method shows the progress of retrieve file from server.
+     * 
+     * @param progressPercentage
+     */
+    private void updateProgress(Double progressPercentage) {
+        // Progress bar width in chars.
+        final Integer width = 50;
+        System.out.print("\r[");
+        Integer i = 0;
+
+        for (; i < progressPercentage * width; i++) {
+            System.out.print("-");
+        }
+
+        for (; i < width; i++) {
+            System.out.print(" ");
+        }
+
+        System.out.print("] " + (int) (progressPercentage * 100) + "%");
     }
 }
