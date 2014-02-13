@@ -28,6 +28,26 @@ public class Main {
      */
     static final Logger logger = LogManager.getLogger(Main.class.getName());
 
+    /**
+     * 
+     * @param address
+     * @param login
+     * @param password
+     * @param path
+     */
+    private static void buildLibrary(String address, String login,
+            String password, String path) {
+        initConfiguration();
+        FTPConnection ftpConn = initConnection(address, login, password, path);
+        // ftpConn.listFiles(args[3]);
+        logger.debug("Bulding library process in progress...");
+        ftpConn.retrieveFiles(path);
+        // ftpConn.storeFile(new JSONBuilder().createJSONFile(), args[3]
+        // + JSONBuilder.JSON_FILE);
+        // new JSONBuilder().buildLibrary();
+        clean();
+    }
+
     private static Boolean checkIsExisting() {
         // TODO Auto-generated method stub
         return false;
@@ -41,6 +61,10 @@ public class Main {
         }
 
         return isCorrect;
+    }
+
+    private static void clean() {
+        // TODO Auto-generated method stub
     }
 
     /**
@@ -89,30 +113,29 @@ public class Main {
      * @throws IOException
      */
     public static void main(String... args) throws IOException {
-        initConfiguration();
         if (args.length == 4) {
-            FTPConnection ftpConn = initConnection(args[0], args[1], args[2],
-                    args[3]);
-            // ftpConn.listFiles(args[3]);
-            // ftpConn.retrieveFiles(args[3]);
-            // ftpConn.storeFile(new JSONBuilder().createJSONFile(), args[3]
-            // + JSONBuilder.JSON_FILE);
-            // new JSONBuilder().buildLibrary();
+            buildLibrary(args[0], args[1], args[2], args[3]);
         } else if (checkPropertiesFile()) {
             // Loading from properties file.
         } else {
-            logger.debug("The application needs 4 arguments: "
-                    + "\n- server address \n- login \n- password \n- path to files\n");
-            System.out
-                    .println("Do uruchomienia aplikacja potrzebuje 4 argumenty:");
-            System.out.println("- adres serwera");
-            System.out.println("- nazwa użytkownika");
-            System.out.println("- hasło");
-            System.out.println("- ścieżka do plików audio (Jeśli foldery są "
-                    + "zagnieżdzone, to należy podać ten znajdujący"
-                    + " się najwyżej w fierarchi folderowej\n");
-            System.out.println("Przykład użycia:");
-            System.out.println("\t ftp.serwer.pl admin admin1 /public/muzyka");
+            printInfromation();
         }
+    }
+
+    /**
+     * 
+     */
+    private static void printInfromation() {
+        logger.debug("The application needs 4 arguments: "
+                + "\n- server address \n- login \n- password \n- path to files\n");
+        System.out.println("Do uruchomienia aplikacja potrzebuje 4 argumenty:");
+        System.out.println("- adres serwera");
+        System.out.println("- nazwa użytkownika");
+        System.out.println("- hasło");
+        System.out.println("- ścieżka do plików audio (Jeśli foldery są "
+                + "zagnieżdzone, to należy podać ten znajdujący"
+                + " się najwyżej w fierarchi folderowej\n");
+        System.out.println("Przykład użycia:");
+        System.out.println("\t ftp.serwer.pl admin admin1 /public/muzyka");
     }
 }

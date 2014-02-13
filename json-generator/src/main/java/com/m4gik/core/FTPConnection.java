@@ -5,6 +5,7 @@
  */
 package com.m4gik.core;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,13 +19,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import com.m4gik.util.JSONBuilder;
-
-import de.vdheide.mp3.FrameDamagedException;
-import de.vdheide.mp3.ID3v2DecompressionException;
-import de.vdheide.mp3.ID3v2IllegalVersionException;
-import de.vdheide.mp3.ID3v2WrongCRCException;
-import de.vdheide.mp3.MP3File;
-import de.vdheide.mp3.NoMP3FrameException;
 
 /**
  * This class is responsible for operation on FTP server, provides connection
@@ -56,7 +50,21 @@ public class FTPConnection {
      */
     private FTPClient ftp = null;
 
+    /**
+     * This boolean value keep information about proper configuration of library
+     * on server side.
+     */
     private Boolean isLibraryChecked = false;
+
+    /**
+     * The outputStream, for keep JSON library
+     */
+    private OutputStream jsonLib;
+
+    /**
+     * This variable store information about location of library on server side.
+     */
+    private String libraryPath;
 
     /**
      * The variable for timeout connection.
@@ -71,13 +79,14 @@ public class FTPConnection {
     public FTPConnection(String server, String username, String password,
             Boolean keepConnectionAlive, Long timeout, String path) {
         setTimeout(timeout);
+        setLibraryPath(path);
 
         logger.debug("Connecting to " + server);
         this.ftp = getFtpConnection(server, username, password,
                 keepConnectionAlive);
         logger.debug("Connected to " + server);
 
-        logger.debug("Counting audio files in directory" + path);
+        logger.debug("Counting audio files in directory " + path);
         this.audioAmount = countAudio(path);
         logger.debug("Audio files counted - " + this.audioAmount + " files");
 
@@ -118,21 +127,24 @@ public class FTPConnection {
      * @param path
      */
     private Boolean checkJsonFile(String path) {
-        FileOutputStream outStream = null;
+        OutputStream jsonLib = null;
 
         try {
-            outStream = new FileOutputStream(JSONBuilder.TEMP
-                    + JSONBuilder.JSON_FILE);
+            jsonLib = new ByteArrayOutputStream();
+            // FileOutputStream(JSONBuilder.TEMP
+            // + JSONBuilder.JSON_FILE);
 
-            if (ftp.retrieveFile(path + JSONBuilder.JSON_FILE, outStream) == true) {
+            if (ftp.retrieveFile(path + JSONBuilder.JSON_FILE, jsonLib) == true) {
                 isLibraryChecked = true;
+                jsonLib.flush();
+                setJsonLib(jsonLib);
             } else {
                 storeFile(new JSONBuilder().initLibrary(), path
                         + JSONBuilder.JSON_FILE);
                 checkJsonFile(path);
             }
 
-            outStream.close();
+            jsonLib.close();
 
         } catch (FileNotFoundException e) {
             logger.error(e);
@@ -143,6 +155,23 @@ public class FTPConnection {
         }
 
         return isLibraryChecked;
+    }
+
+    /**
+     * This method checks JSON library if contains given key(name of file).
+     * 
+     * @param name
+     *            The name of file to check in JSON library.
+     * @return True if in JSON library contains key, false if not.
+     */
+    private Boolean checkLibrary(String FileName) {
+        Boolean isExisting = false;
+
+        if (JSONBuilder.checkExistingKey(jsonLib, FileName)) {
+            isExisting = true;
+        }
+
+        return isExisting;
     }
 
     /**
@@ -160,7 +189,7 @@ public class FTPConnection {
                 if (file.isFile() && checkExtension(file.getName(), "mp3")) {
                     amount++;
                 } else if (isFolder(file)) {
-                    amount += countAudio(path + "/" + file.getName());
+                    amount += countAudio(path + file.getName() + "/");
                 }
             }
         } catch (IOException ioe) {
@@ -222,34 +251,17 @@ public class FTPConnection {
     }
 
     /**
-     * Test method.
-     * 
-     * @param file
-     * @param path
+     * @return the jsonLib
      */
-    private void getMP3File(FTPFile file, String path) {
-        try {
-            MP3File mp3 = new MP3File(path, file.getName());
-            logger.debug(mp3.getArtist().getTextContent());
-        } catch (ID3v2WrongCRCException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ID3v2DecompressionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ID3v2IllegalVersionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoMP3FrameException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (FrameDamagedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public OutputStream getJsonLib() {
+        return jsonLib;
+    }
+
+    /**
+     * @return the libraryPath
+     */
+    public String getLibraryPath() {
+        return libraryPath;
     }
 
     /**
@@ -315,29 +327,33 @@ public class FTPConnection {
      *            The location of file on server side.
      * @return The retrieved file.
      */
-    private OutputStream retrieveFile(FTPFile file, String path) {
-        FileOutputStream outStream = null;
+    private void retrieveFile(FTPFile file, String path) {
+        if (!checkLibrary(file.getName())) {
+            FileOutputStream outStream = null;
 
-        try {
-            outStream = new FileOutputStream("FtpFiles/" + file.getName());
+            try {
+                outStream = new FileOutputStream(JSONBuilder.TEMP
+                        + file.getName());
 
-            if (ftp.retrieveFile(path + file.getName(), outStream)) {
-                logger.debug(file.getName() + " retrive succesfull");
-            } else {
-                logger.debug(file.getName() + " retrive failed, because "
-                        + ftp.getReplyString());
+                if (ftp.retrieveFile(path + file.getName(), outStream)) {
+                    logger.debug(file.getName() + " retrive succesfull");
+                } else {
+                    logger.debug(file.getName() + " retrive failed, because "
+                            + ftp.getReplyString());
+                }
+
+                outStream.close();
+                storeFile(JSONBuilder.getMP3FileInformation(file.getName(),
+                        path, getJsonLib()), getLibraryPath());
+            } catch (FileNotFoundException e) {
+                logger.error(e);
+                logger.debug(e);
+            } catch (IOException ioe) {
+                logger.error(ioe);
+                logger.debug(ioe);
             }
-
-            outStream.close();
-        } catch (FileNotFoundException e) {
-            logger.error(e);
-            logger.debug(e);
-        } catch (IOException ioe) {
-            logger.error(ioe);
-            logger.debug(ioe);
         }
 
-        return outStream;
     }
 
     /**
@@ -350,16 +366,31 @@ public class FTPConnection {
             for (FTPFile file : ftp.listFiles(path)) {
                 if (file.isFile()) {
                     updateProgress(progressPercentage(currentAmount++));
-                    // retrieveFile(file, path);
-                    // getMP3File(file, "FtpFiles/");
+                    retrieveFile(file, path);
                 } else if (isFolder(file)) {
-                    retrieveFiles(path + "/" + file.getName());
+                    retrieveFiles(path + file.getName() + "/");
                 }
             }
         } catch (IOException ioe) {
             logger.error(ioe);
             logger.debug(ioe);
         }
+    }
+
+    /**
+     * @param jsonLib
+     *            the jsonLib to set
+     */
+    public void setJsonLib(OutputStream jsonLib) {
+        this.jsonLib = jsonLib;
+    }
+
+    /**
+     * @param libraryPath
+     *            the libraryPath to set
+     */
+    public void setLibraryPath(String libraryPath) {
+        this.libraryPath = libraryPath;
     }
 
     /**
@@ -383,9 +414,12 @@ public class FTPConnection {
             ftp.storeFile(path, inputStream);
 
             if (!(ftp.getReplyCode() == 226)) {
+                inputStream.close();
                 System.out.println(ftp.getReplyString());
                 System.exit(1);
             }
+
+            inputStream.close();
 
         } catch (IOException ioe) {
             logger.error(ioe);
@@ -412,6 +446,6 @@ public class FTPConnection {
             System.out.print(" ");
         }
 
-        System.out.print("] " + (int) (progressPercentage * 100) + "%");
+        System.out.print("] " + (int) (progressPercentage * 100) + "% ");
     }
 }

@@ -9,15 +9,24 @@ import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import de.vdheide.mp3.FrameDamagedException;
+import de.vdheide.mp3.ID3v2DecompressionException;
+import de.vdheide.mp3.ID3v2IllegalVersionException;
+import de.vdheide.mp3.ID3v2WrongCRCException;
+import de.vdheide.mp3.MP3File;
+import de.vdheide.mp3.NoMP3FrameException;
 
 /**
  * TODO COMMENTS MISSING!
@@ -49,6 +58,25 @@ public class JSONBuilder {
     public final static String TEMP = "temp/";
 
     /**
+     * This method checks JSON library if contains given key.
+     * 
+     * @param key
+     *            The key with name for current audio.
+     * @return True if in JSON library contains key, false if not.
+     */
+    public static Boolean checkExistingKey(OutputStream jsonLib, String key) {
+        Boolean isExistingKey = false;
+        net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
+                .fromObject(jsonLib.toString());
+
+        if (jsonObject.containsKey(key)) {
+            isExistingKey = true;
+        }
+
+        return isExistingKey;
+    }
+
+    /**
      * This method gets current data time.
      * 
      * @return The current data time in format yyyy/MM/dd HH:mm:ss.
@@ -58,6 +86,78 @@ public class JSONBuilder {
         Calendar cal = Calendar.getInstance();
 
         return dateFormat.format(cal.getTime()).toString();
+    }
+
+    /**
+     * This method gets basic information about mp3 file and store all
+     * information in JSON library. After store operation, delete this file.
+     * 
+     * @param fileName
+     *            The name of file located in temporary folder.
+     * @param path
+     *            The path on server side.
+     * @param jsonLib
+     *            The OutputStream for JSON library.
+     * @return The InputStream for JSON library.
+     */
+    public static InputStream getMP3FileInformation(String fileName,
+            String path, OutputStream jsonLib) {
+        net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
+                .fromObject(jsonLib.toString());
+
+        try {
+            MP3File mp3File = new MP3File(TEMP, fileName);
+            HashMap<String, String> information = new HashMap<String, String>();
+            information.put("title", mp3File.getTitle().toString());
+            information.put("artist", mp3File.getArtist().toString());
+            information.put("year", mp3File.getYear().toString());
+            information.put("album", mp3File.getAlbum().toString());
+            information.put("lenght", getTime(mp3File.getLength()));
+            information.put("bit rate",
+                    new Integer(mp3File.getBitrate()).toString());
+            information.put("orginal name", mp3File.getName());
+            information.put("directory", path);
+            information.put("location", path + fileName);
+            information.put("size",
+                    new Long(mp3File.getTotalSpace()).toString());
+
+            jsonObject.put(fileName, information);
+            mp3File.delete();
+        } catch (ID3v2WrongCRCException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (ID3v2DecompressionException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (ID3v2IllegalVersionException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (IOException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (NoMP3FrameException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (FrameDamagedException e) {
+            logger.error(e);
+            logger.debug(e);
+        }
+
+        return new ByteArrayInputStream(jsonObject.toString().getBytes());
+    }
+
+    /**
+     * This method convert long time to more readable format.
+     * 
+     * @param length
+     *            The time in long format.
+     * @return Readable time format.
+     */
+    private static String getTime(long length) {
+        Date date = new Date(length);
+        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+
+        return formatter.format(date);
     }
 
     /**
