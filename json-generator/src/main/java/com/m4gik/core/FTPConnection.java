@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -79,7 +80,7 @@ public class FTPConnection {
     public FTPConnection(String server, String username, String password,
             Boolean keepConnectionAlive, Long timeout, String path) {
         setTimeout(timeout);
-        setLibraryPath(path);
+        setLibraryPath(path + JSONBuilder.JSON_FILE);
 
         logger.debug("Connecting to " + server);
         this.ftp = getFtpConnection(server, username, password,
@@ -217,7 +218,7 @@ public class FTPConnection {
             ftp = new FTPClient();
             ftp.connect(server);
             ftp.enterLocalPassiveMode();
-            ftp.setFileType(FTP.BINARY_FILE_TYPE);
+            ftp.setFileType(FTP.ASCII_FILE_TYPE);
             ftp.setAutodetectUTF8(true);
 
             if (!ftp.login(username, password)) {
@@ -353,7 +354,6 @@ public class FTPConnection {
                 logger.debug(ioe);
             }
         }
-
     }
 
     /**
@@ -366,7 +366,8 @@ public class FTPConnection {
             for (FTPFile file : ftp.listFiles(path)) {
                 if (file.isFile()) {
                     updateProgress(progressPercentage(currentAmount++));
-                    retrieveFile(file, path);
+                    // retrieveFile(file, path);
+                    retrieveInputStream(file, path);
                 } else if (isFolder(file)) {
                     retrieveFiles(path + file.getName() + "/");
                 }
@@ -374,6 +375,48 @@ public class FTPConnection {
         } catch (IOException ioe) {
             logger.error(ioe);
             logger.debug(ioe);
+        }
+    }
+
+    /**
+     * 
+     * @param file
+     * @param path
+     */
+    private void retrieveInputStream(FTPFile file, String path) {
+        if (!checkLibrary(file.getName())) {
+            InputStream inputStream = null;
+
+            try {
+                // Create an InputStream to the File Data and use
+                // FileOutputStream to write it.
+                inputStream = ftp.retrieveFileStream(path + file.getName());
+                FileOutputStream fileOutputStream = new FileOutputStream(
+                        JSONBuilder.TEMP + file.getName());
+
+                // Using org.apache.commons.io.IOUtils
+                IOUtils.copy(inputStream, fileOutputStream);
+                fileOutputStream.flush();
+                IOUtils.closeQuietly(fileOutputStream);
+                IOUtils.closeQuietly(inputStream);
+                Boolean downloadStatus = ftp.completePendingCommand();
+
+                if (downloadStatus) {
+                    logger.debug(file.getName() + " retrive succesfull");
+                } else {
+                    logger.debug(file.getName() + " retrive failed, because "
+                            + ftp.getReplyString());
+                }
+
+                storeFile(JSONBuilder.getMP3FileInformation(file.getName(),
+                        path, getJsonLib()), getLibraryPath());
+            } catch (FileNotFoundException e) {
+                logger.error(e);
+                logger.debug(e);
+            } catch (IOException ioe) {
+                logger.error(ioe);
+                logger.debug(ioe);
+            }
         }
     }
 

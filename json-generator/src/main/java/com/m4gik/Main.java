@@ -7,9 +7,11 @@ package com.m4gik;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Handler;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jaudiotagger.audio.AudioFile;
 
 import com.m4gik.core.FTPConnection;
 
@@ -71,8 +73,10 @@ public class Main {
      * This method contains configuration for this application.
      */
     private static void initConfiguration() {
+        loggerSetup();
         logger.debug("Application is starting...");
-        // BasicConfigurator.configure();
+
+        System.out.println("Trwa uruchamianie aplikacji...");
         File file = new File("temp/");
         if (!file.exists()) {
             if (!file.mkdir()) {
@@ -99,6 +103,14 @@ public class Main {
     }
 
     /**
+     * This method sets up configuration for loggers.
+     */
+    private static void loggerSetup() {
+        // BasicConfigurator.configure();
+        // mp3LoggerSetup();
+    }
+
+    /**
      * The main method of application. The application needs 4 args:
      * 
      * - server address
@@ -119,6 +131,19 @@ public class Main {
             // Loading from properties file.
         } else {
             printInfromation();
+        }
+    }
+
+    /**
+     * This method deletes logger properties for AudioFile.
+     */
+    private static void mp3LoggerSetup() {
+        AudioFile.logger.setUseParentHandlers(false);
+        java.util.logging.Logger globalLogger = java.util.logging.Logger
+                .getLogger("");
+        Handler[] handlers = globalLogger.getHandlers();
+        for (Handler handler : handlers) {
+            globalLogger.removeHandler(handler);
         }
     }
 

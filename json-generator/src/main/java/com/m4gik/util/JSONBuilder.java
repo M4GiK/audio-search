@@ -6,6 +6,7 @@
 package com.m4gik.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,23 +14,25 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.TagField;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import de.vdheide.mp3.FrameDamagedException;
-import de.vdheide.mp3.ID3v2DecompressionException;
-import de.vdheide.mp3.ID3v2IllegalVersionException;
-import de.vdheide.mp3.ID3v2WrongCRCException;
-import de.vdheide.mp3.MP3File;
-import de.vdheide.mp3.NoMP3FrameException;
-
 /**
- * TODO COMMENTS MISSING!
+ * This class is responsible for building JSON library. The basic operation of
+ * this class provide: initialization of library, updating library, and build
+ * library.
  * 
  * @author m4gik <michal.szczygiel@wp.pl>
  * 
@@ -89,6 +92,23 @@ public class JSONBuilder {
     }
 
     /**
+     * This method gathers all information from list and store in single string.
+     * 
+     * @param informationList
+     *            The list with information.
+     * @return The single string with information from the list.
+     */
+    private static String getInformationFromList(List<TagField> informationList) {
+        String information = "";
+
+        for (Object object : safe(informationList)) {
+            information += object + " ";
+        }
+
+        return information;
+    }
+
+    /**
      * This method gets basic information about mp3 file and store all
      * information in JSON library. After store operation, delete this file.
      * 
@@ -105,43 +125,78 @@ public class JSONBuilder {
         net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
                 .fromObject(jsonLib.toString());
 
-        try {
-            MP3File mp3File = new MP3File(TEMP, fileName);
-            HashMap<String, String> information = new HashMap<String, String>();
-            information.put("title", mp3File.getTitle().toString());
-            information.put("artist", mp3File.getArtist().toString());
-            information.put("year", mp3File.getYear().toString());
-            information.put("album", mp3File.getAlbum().toString());
-            information.put("lenght", getTime(mp3File.getLength()));
-            information.put("bit rate",
-                    new Integer(mp3File.getBitrate()).toString());
-            information.put("orginal name", mp3File.getName());
-            information.put("directory", path);
-            information.put("location", path + fileName);
-            information.put("size",
-                    new Long(mp3File.getTotalSpace()).toString());
+        MP3File mp3File = null;
+        HashMap<String, String> information = new HashMap<String, String>();
 
-            jsonObject.put(fileName, information);
-            mp3File.delete();
-        } catch (ID3v2WrongCRCException e) {
+        try {
+            mp3File = new MP3File(new File(TEMP + "/" + fileName));
+
+            if (!mp3File.getID3v1Tag().getTitle().isEmpty()) {
+                information.put("title", getInformationFromList(mp3File
+                        .getID3v1Tag().getTitle()));
+            } else {
+                information.put("title", "");
+            }
+
+            if (!mp3File.getID3v1Tag().getArtist().isEmpty()) {
+                information.put("artist", getInformationFromList(mp3File
+                        .getID3v1Tag().getArtist()));
+            } else {
+                information.put("artist", "");
+            }
+
+            if (!mp3File.getID3v1Tag().getYear().isEmpty()) {
+                information.put("year", getInformationFromList(mp3File
+                        .getID3v1Tag().getYear()));
+            } else {
+                information.put("year", "");
+            }
+
+            if (!mp3File.getID3v1Tag().getAlbum().isEmpty()) {
+                information.put("album", getInformationFromList(mp3File
+                        .getID3v1Tag().getAlbum()));
+            } else {
+                information.put("album", "");
+            }
+
+            information.put("lenght", getTime(mp3File.getMP3AudioHeader()
+                    .getTrackLength()));
+            information.put("bit rate", mp3File.getMP3AudioHeader()
+                    .getBitRate());
+            information.put("size",
+                    new Long(mp3File.getFile().getTotalSpace()).toString());
+
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        } catch (TagException e) {
             logger.error(e);
             logger.debug(e);
-        } catch (ID3v2DecompressionException e) {
+        } catch (ReadOnlyFileException e) {
             logger.error(e);
             logger.debug(e);
-        } catch (ID3v2IllegalVersionException e) {
+        } catch (InvalidAudioFrameException e) {
             logger.error(e);
             logger.debug(e);
-        } catch (IOException e) {
-            logger.error(e);
-            logger.debug(e);
-        } catch (NoMP3FrameException e) {
-            logger.error(e);
-            logger.debug(e);
-        } catch (FrameDamagedException e) {
+        } catch (NullPointerException e) {
             logger.error(e);
             logger.debug(e);
         }
+
+        mp3File.getFile().delete();
+        information.put("orginal name", fileName);
+        information.put("directory", path);
+        information.put("location", path + fileName);
+        jsonObject.put(fileName, information);
+
+        try {
+            jsonLib.write(jsonObject.toString().getBytes());
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        }
+
+        System.out.println(jsonObject.toString());
 
         return new ByteArrayInputStream(jsonObject.toString().getBytes());
     }
@@ -158,6 +213,18 @@ public class JSONBuilder {
         DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
         return formatter.format(date);
+    }
+
+    /**
+     * This method perform safe operations on the lists.
+     * 
+     * @param list
+     *            The list to check if is empty.
+     * @return safe list, which avoid {@link NullPointerException}
+     */
+    @SuppressWarnings("rawtypes")
+    public static List safe(List list) {
+        return list == null ? Collections.EMPTY_LIST : list;
     }
 
     /**
