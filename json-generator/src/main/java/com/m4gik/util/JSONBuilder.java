@@ -28,6 +28,8 @@ import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  * This class is responsible for building JSON library. The basic operation of
@@ -120,10 +122,20 @@ public class JSONBuilder {
      *            The OutputStream for JSON library.
      * @return The InputStream for JSON library.
      */
+    @SuppressWarnings("unchecked")
     public static InputStream getMP3FileInformation(String fileName,
             String path, OutputStream jsonLib) {
-        net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
-                .fromObject(jsonLib.toString());
+        // net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
+        // .fromObject(jsonLib.toString());
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = null;
+
+        try {
+            jsonObject = (JSONObject) jsonParser.parse(jsonLib.toString());
+        } catch (ParseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 
         MP3File mp3File = null;
         HashMap<String, String> information = new HashMap<String, String>();

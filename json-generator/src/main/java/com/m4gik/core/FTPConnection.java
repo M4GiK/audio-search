@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.ftp.FTP;
@@ -219,6 +220,7 @@ public class FTPConnection {
             ftp.connect(server);
             ftp.enterLocalPassiveMode();
             ftp.setFileType(FTP.ASCII_FILE_TYPE);
+            ftp.setCharset(Charset.forName("utf8"));
             ftp.setAutodetectUTF8(true);
 
             if (!ftp.login(username, password)) {
