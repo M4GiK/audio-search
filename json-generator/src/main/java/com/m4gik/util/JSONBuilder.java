@@ -7,6 +7,8 @@ package com.m4gik.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +54,11 @@ public class JSONBuilder {
     public final static String JSON_FILE = "lib.json";
 
     /**
+     * This constant value keeps name for file with FTP properties.
+     */
+    public final static String JSON_PROPERTIES = "ftp.properties";
+
+    /**
      * This logger is responsible for the registration of events.
      */
     static final Logger logger = LogManager.getLogger(JSONBuilder.class
@@ -61,6 +68,27 @@ public class JSONBuilder {
      * This constant value keeps location for temporary folder.
      */
     public final static String TEMP = "temp/";
+
+    /**
+     * This method build JSON object with given properties.
+     * 
+     * @param address
+     * @param login
+     * @param password
+     * @param path
+     * @return The prepared JSONObject.
+     */
+    @SuppressWarnings("unchecked")
+    public static JSONObject buildProperties(String address, String login,
+            String password, String path) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("address", address);
+        jsonObject.put("login", login);
+        jsonObject.put("password", password);
+        jsonObject.put("directory", path);
+
+        return jsonObject;
+    }
 
     /**
      * This method checks JSON library if contains given key.
@@ -228,6 +256,41 @@ public class JSONBuilder {
     }
 
     /**
+     * This method read values from properties file and return string array with
+     * data.
+     * 
+     * @param jsonProperties
+     *            The file name for properties file.
+     * @return The array with data from properties file.
+     */
+    public static String[] readProperties(String jsonProperties) {
+        String[] properties = new String[4];
+        JSONObject jsonObject = null;
+
+        try {
+            jsonObject = (JSONObject) new JSONParser().parse(new FileReader(
+                    new File(jsonProperties)));
+
+            properties[0] = (String) jsonObject.get("address");
+            properties[1] = (String) jsonObject.get("login");
+            properties[2] = (String) jsonObject.get("password");
+            properties[3] = (String) jsonObject.get("directory");
+
+        } catch (FileNotFoundException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        } catch (ParseException e) {
+            logger.error(e);
+            logger.debug(e);
+        }
+
+        return properties;
+    }
+
+    /**
      * This method perform safe operations on the lists.
      * 
      * @param list
@@ -237,6 +300,65 @@ public class JSONBuilder {
     @SuppressWarnings("rawtypes")
     public static List safe(List list) {
         return list == null ? Collections.EMPTY_LIST : list;
+    }
+
+    /**
+     * This method makes validation for properties file.
+     * 
+     * @param jsonProperties
+     *            The file name for properties file.
+     * @return True if file is valid correctly, false if is not.
+     */
+    public static Boolean validProperties(String jsonProperties) {
+        Boolean isValid = false;
+        JSONObject jsonObject = null;
+
+        try {
+            jsonObject = (JSONObject) new JSONParser().parse(new FileReader(
+                    new File(jsonProperties)));
+
+            if (jsonObject.containsKey("address")
+                    && !jsonObject.get("address").equals("")) {
+                isValid = true;
+            } else {
+                isValid = false;
+            }
+
+            if (jsonObject.containsKey("login")
+                    && !jsonObject.get("login").equals("") && isValid == true) {
+                isValid = true;
+            } else {
+                isValid = false;
+            }
+
+            if (jsonObject.containsKey("password")
+                    && !jsonObject.get("password").equals("")
+                    && isValid == true) {
+                isValid = true;
+            } else {
+                isValid = false;
+            }
+
+            if (jsonObject.containsKey("directory")
+                    && !jsonObject.get("directory").equals("")
+                    && isValid == true) {
+                isValid = true;
+            } else {
+                isValid = false;
+            }
+
+        } catch (FileNotFoundException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        } catch (ParseException e) {
+            logger.error(e);
+            logger.debug(e);
+        }
+
+        return isValid;
     }
 
     /**
