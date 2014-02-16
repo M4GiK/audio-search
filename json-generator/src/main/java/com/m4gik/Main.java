@@ -40,10 +40,10 @@ public class Main {
      */
     private static void buildLibrary(String... properties) {
         initConfiguration();
-        FTPConnection ftpConn = initConnection(properties[0], properties[1],
-                properties[2], properties[3]);
+        // FTPConnection ftpConn = initConnection(properties[0], properties[1],
+        // properties[2], properties[3]);
         logger.debug("Bulding library process in progress...");
-        ftpConn.retrieveFiles(properties[3]);
+        // ftpConn.retrieveFiles(properties[3]);
         clean();
 
     }
@@ -132,8 +132,20 @@ public class Main {
         return isCorrect;
     }
 
+    /**
+     * This method deletes all temporary files.
+     */
     private static void clean() {
-        // TODO Auto-generated method stub
+        File file = new File(JSONBuilder.TEMP);
+
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                for (File singleFile : file.listFiles()) {
+                    singleFile.delete();
+                }
+            }
+            file.delete();
+        }
     }
 
     /**
