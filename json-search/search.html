@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+	<head>
+		<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+		<link href="assets/css/bootstrap.min.css" media="screen" rel="stylesheet" type="text/css">
+		<link href="assets/css/jquery-ui-1.10.2.custom.min.css" media="screen" rel="stylesheet" type="text/css">
+		<link href="assets/css/stream.css" media="screen" rel="stylesheet" type="text/css">
+		<script src="assets/js/jquery.min.js" type="text/javascript"></script>
+		<script src="assets/js/jquery-ui-1.10.2.custom.min.js" type="text/javascript"></script>
+		<script src="assets/js/mustache.js" type="text/javascript"></script>
+		<script src="assets/js/filter.js" type="text/javascript"></script>
+		<script src="assets/library/top_movies_data.js" type="text/javascript"></script>
+		<script src="assets/js/stream.js" type="text/javascript"></script>
+		
+		<title>Kościoł Zielonoświątkowy</title>
+		
+		<style>
+			html, body {
+				height: 100%;
+			}
+			div#space {
+				width: 1px;
+				height: 50%;
+				margin-bottom: -900px;
+				float: left
+			}
+			div#container {
+				width: 1280px;
+				height: 1800px;
+				margin: 0 auto;
+				position: relative;
+				clear: left;
+			}
+			body {
+				background-color: #003540;
+				color: #000000;
+				font-family: Arial;
+				font-size: 8px;
+				line-height: 1.1875;
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+		
+		<style>
+			a {
+				color: #0000FF;
+				text-decoration: underline;
+			}
+			a:visited {
+				color: #800080;
+			}
+			a:active {
+				color: #FF0000;
+			}
+			a:hover {
+				color: #0000FF;
+				text-decoration: underline;
+			}
+		</style>
+		
+		<style>
+			#Image7 {
+				border: 0px #000000 solid;
+			}
+			#wb_Text2 {
+				background-color: transparent;
+				border: 0px #000000 solid;
+				padding: 0;
+				text-align: left;
+			}
+			#wb_Text2 div {
+				text-align: left;
+			}
+			#RollOver1 a {
+				display: block;
+				position: relative;
+			}
+			#RollOver1 a img {
+				position: absolute;
+				z-index: 1;
+				border-width: 0px;
+			}
+			#RollOver1 span {
+				display: block;
+				height: 204px;
+				width: 204px;
+				position: absolute;
+				z-index: 2;
+			}
+			#wb_Text7 {
+				background-color: transparent;
+				border: 0px #000000 solid;
+				padding: 0;
+				text-align: left;
+			}
+			#wb_Text7 div {
+				text-align: left;
+			}
+			#wb_Text13 {
+				background-color: transparent;
+				border: 0px #000000 solid;
+				padding: 0;
+				text-align: left;
+			}
+			#wb_Text13 div {
+				text-align: left;
+			}
+			#Image2 {
+				border: 0px #000000 solid;
+			}
+			#wb_Text1 {
+				background-color: transparent;
+				border: 0px #000000 solid;
+				padding: 0;
+				text-align: left;
+			}
+			#wb_Text1 div {
+				text-align: left;
+			}
+		</style>
+		
+		<script src="jquery-1.9.1.min.js"></script>
+		<script>
+			$(document).ready(function() {
+				$("#RollOver1 a").hover(function() {
+					$(this).children("span").stop().fadeTo(500, 0);
+				}, function() {
+					$(this).children("span").stop().fadeTo(500, 1);
+				});
+			});
+		</script>
+		
+	</head>
+	<body>
+		<div id="space">
+			<br>
+		</div>
+		<div id="container">
+			<div id="wb_Image7" style="position:absolute;left:139px;top:0px;width:1000px;height:5900px;filter:alpha(opacity=50);-moz-opacity:0.50;opacity:0.50;z-index:0;">
+				<img src="images/img0046.jpg" id="Image7" alt="" style="width:1000px;height:5900px;">
+			</div>
+			<a href="http://www.wysiwygwebbuilder.com" target="_blank"></a>
+			&nbsp;
+			<div id="wb_Text2" style="position:absolute;left:164px;top:135px;width:248px;height:39px;z-index:2;text-align:left;">
+				<span style="color:#FFFFFF;font-family:Verdana;font-size:19px;">Rok 2012 </span><span style="color:#000000;font-family:Arial;font-size:24px;">
+					<br>
+				</span>
+			</div>
+
+			<a href="./index.html"><img src="images/img0260.jpg" id="Banner1" alt="STRONA G&#321;&#211;WNA" style="position:absolute;left:917px;top:139px;width:197px;height:29px;border-width:0;z-index:14;"></a>
+			<a href="./onas.html"><img src="images/img0261.jpg" id="Banner2" alt="O NAS" style="position:absolute;left:917px;top:174px;width:197px;height:29px;border-width:0;z-index:15;"></a>
+			<a href="./aktualnosci.html"><img src="images/img0262.jpg" id="Banner3" alt="AKTUALNO&#346;CI" style="position:absolute;left:917px;top:209px;width:197px;height:29px;border-width:0;z-index:16;"></a>
+			<a href="./kalendarz.html"><img src="images/img0263.jpg" id="Banner4" alt="PLAN SPOTKA&#323;" style="position:absolute;left:917px;top:245px;width:197px;height:29px;border-width:0;z-index:17;"></a>
+			<a href="./multimedia.html"><img src="images/img0264.jpg" id="Banner5" alt="MEDIA" style="position:absolute;left:917px;top:280px;width:197px;height:29px;border-width:0;z-index:18;"></a>
+			<a href="./naszedzialania.html"><img src="images/img0027.jpg" id="Banner6" alt="NASZE DZIA&#321;ANIA" style="position:absolute;left:917px;top:316px;width:197px;height:29px;border-width:0;z-index:19;"></a>
+			<a href="./linki.html"><img src="images/img0266.jpg" id="Banner7" alt="WARTO ZAGL&#260;DA&#262;" style="position:absolute;left:917px;top:353px;width:197px;height:29px;border-width:0;z-index:20;"></a>
+			<a href="javascript:history.back()"><img src="images/img0267.jpg" id="Banner8" alt="WR&#211;C" style="position:absolute;left:917px;top:386px;width:197px;height:29px;border-width:0;z-index:21;"></a>
+
+			<div id="wb_Text13" style="position:absolute;left:241px;top:35px;width:613px;height:29px;z-index:6;text-align:left;">
+				<span style="color:#FFFFFF;font-family:Verdana;font-size:24px;">Kościół Zielonoświątkowy Zbór Kraków Nowa Huta</span>
+			</div>
+			<div id="wb_Image2" style="position:absolute;left:155px;top:0px;width:87px;height:105px;z-index:7;">
+				<img src="images/logo.png" id="Image2" alt="" style="width:87px;height:105px;">
+			</div>
+			<div id="wb_Shape2" style="position:absolute;left:868px;top:0px;width:18px;height:1799px;z-index:9;">
+				<img src="images/img0082.png" id="Shape2" alt="" style="border-width:0;width:15px;height:5900px;">
+			</div>
+			<div id="wb_Shape1" style="position:absolute;left:140px;top:94px;width:1000px;height:18px;z-index:10;">
+				<img src="images/img0083.png" id="Shape1" alt="" style="border-width:0;width:1000px;height:18px;">
+			</div>
+			<div id="wb_Text1" style="position:absolute;left:164px;top:206px;width:677px;height:612px;z-index:11;text-align:center">
+				<span style="color:#FFFFFF;font-family:Verdana;font-size:16px;" >
+					<table width="548"  border="1"  bordercolorlight="#C1CFDC" style="border-collapse: collapse" bordercolordark="#C1CFDC" height="84"  align="center">
+						<tr>
+							<td align="center" height="15" width="316"><b>NAGRANIE</b></td>
+							<td align="center" height="15"  width="122"><b>POBIERZ</b></td>
+						</tr>
+				
+						<tr class="kazania_pastor">
+							<td width="282" height="69">21.01.2012
+							<br/>
+							<b> Leszek Korzeniecki-</b>
+							<br>
+							&quot;Dar uzdrawiania&quot;</td>
+							<td width="59" height="69"><a href="nagrania/kazania/2012/02_Dar_uzdrawiania_LKorzeniecki.mp3"> <img border="0" src="images/Floppy.gif" width="22" height="22" alt="Pobierz nagranie"></a></td>
+						</tr>
+
+						<tr class="kazania_pastor">
+							<td colspan="2" height="36">
+							<object type="application/x-shockwave-flash" data="http://www.kznh.pl/piesni/audio/player.swf" id="audioplayer1" height="24" width="416" align="middle">
+								<param name="movie" value="http://www.kznh.pl/piesni/audio/player.swf">
+								<param name="FlashVars" value="playerID=audioplayer1&soundFile=http://www.kznh.pl/nagrania/kazania/2012/02_Dar_uzdrawiania_LKorzeniecki.mp3">
+								<param name="quality" value="high">
+								<param name="menu" value="false">
+								<param name="wmode" value="transparent">
+							</object></td>
+						</tr>
+
+						<tr class="kazania_pastor">
+
+							<td width="282" height="69">15.01.2012
+							<br/>
+							<b>Andrzej Sczyrba-</b>
+							<br>
+							&quot;Niewłaściwe i właściwe troski&quot;</td>
+							<td width="59" height="69"><a href="nagrania/kazania/2012/Niewlasciwe_i_wlasciwe_troski_ASczyrba.mp3"> <img border="0" src="images/Floppy.gif" width="22" height="22" alt="Pobierz nagranie"></a></td>
+						</tr>
+
+						<tr class="kazania_pastor">
+							<td colspan="2" height="36">
+							<object type="application/x-shockwave-flash" data="http://www.kznh.pl/piesni/audio/player.swf" id="audioplayer1" height="24" width="416" align="middle">
+								<param name="movie" value="http://www.kznh.pl/piesni/audio/player.swf">
+								<param name="FlashVars" value="playerID=audioplayer1&soundFile=http://www.kznh.pl/nagrania/kazania/2012/Niewlasciwe_i_wlasciwe_troski_ASczyrba.mp3">
+								<param name="quality" value="high">
+								<param name="menu" value="false">
+								<param name="wmode" value="transparent">
+							</object></td>
+						</tr>
+
+					</table> </span>
+			</div>
+		</div>
+	</body>
+</html>
