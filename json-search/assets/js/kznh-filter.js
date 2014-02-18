@@ -50,7 +50,7 @@ jQuery(document).ready(function($) {
   });
 
   $.each(AudioLibrary, function(i, m){ m.id = i+1; });
-  window.mf = AudioFilter(Muyzka);
+  window.mf = AudioFilter(AudioLibrary);
 
   $('#genre_criteria :checkbox').prop('checked', true);
   $('#all_genre').on('click', function(e){
@@ -95,6 +95,6 @@ var AudioFilter = function(data){
     callbacks: callbacks
   }
 
-  return FilterJS(data, "#movies", view, options);
+  return FilterJS(data, "#audio", view, options);
 }
 
