@@ -257,8 +257,7 @@ public class JSONBuilder {
 
         System.out.println(jsonObject.toString());
 
-        return jsonObject;// new
-                          // ByteArrayInputStream(jsonObject.toString().getBytes());
+        return jsonObject;
     }
 
     /**
