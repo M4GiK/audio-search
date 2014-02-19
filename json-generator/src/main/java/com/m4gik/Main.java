@@ -40,10 +40,10 @@ public class Main {
      */
     private static void buildLibrary(String... properties) {
         initConfiguration();
-        // FTPConnection ftpConn = initConnection(properties[0], properties[1],
-        // properties[2], properties[3]);
+        FTPConnection ftpConn = initConnection(properties[0], properties[1],
+                properties[2], properties[3]);
         logger.debug("Bulding library process in progress...");
-        // ftpConn.retrieveFiles(properties[3]);
+        ftpConn.retrieveFiles(properties[3]);
         clean();
 
     }
@@ -186,7 +186,7 @@ public class Main {
      */
     private static void loggerSetup() {
         // BasicConfigurator.configure();
-        // mp3LoggerSetup();
+        mp3LoggerSetup();
     }
 
     /**

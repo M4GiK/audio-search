@@ -5,6 +5,7 @@
  */
 package com.m4gik.core;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -346,8 +347,11 @@ public class FTPConnection {
                 }
 
                 outStream.close();
-                storeFile(JSONBuilder.getMP3FileInformation(file.getName(),
-                        path, getJsonLib()), getLibraryPath());
+                storeFile(
+                        new ByteArrayInputStream(updateMemory(JSONBuilder
+                                .getMP3FileInformation(file.getName(), path,
+                                        getJsonLib()).toString().getBytes())),
+                        getLibraryPath());
             } catch (FileNotFoundException e) {
                 logger.error(e);
                 logger.debug(e);
@@ -410,8 +414,11 @@ public class FTPConnection {
                             + ftp.getReplyString());
                 }
 
-                storeFile(JSONBuilder.getMP3FileInformation(file.getName(),
-                        path, getJsonLib()), getLibraryPath());
+                storeFile(
+                        new ByteArrayInputStream(updateMemory(JSONBuilder
+                                .getMP3FileInformation(file.getName(), path,
+                                        getJsonLib()).toString().getBytes())),
+                        getLibraryPath());
             } catch (FileNotFoundException e) {
                 logger.error(e);
                 logger.debug(e);
@@ -470,6 +477,26 @@ public class FTPConnection {
             logger.error(ioe);
             logger.debug(ioe);
         }
+    }
+
+    /**
+     * This method updates cache memory (Input Stream).
+     * 
+     * @param bytes
+     * @return The updated memory.
+     */
+    private byte[] updateMemory(byte[] bytes) {
+        try {
+            OutputStream outputStream = new ByteArrayOutputStream();
+            outputStream.write(bytes);
+            getJsonLib().close();
+            setJsonLib(outputStream);
+        } catch (IOException ioe) {
+            logger.error(ioe);
+            logger.debug(ioe);
+        }
+
+        return bytes;
     }
 
     /**

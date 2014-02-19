@@ -132,7 +132,7 @@ public class JSONBuilder {
         String information = "";
 
         for (Object object : safe(informationList)) {
-            information += object + " ";
+            information += object.toString() + " ";
         }
 
         return information;
@@ -150,52 +150,67 @@ public class JSONBuilder {
      *            The OutputStream for JSON library.
      * @return The InputStream for JSON library.
      */
-    @SuppressWarnings("unchecked")
-    public static InputStream getMP3FileInformation(String fileName,
+    public static net.sf.json.JSONObject getMP3FileInformation(String fileName,
             String path, OutputStream jsonLib) {
-        // net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
-        // .fromObject(jsonLib.toString());
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(jsonLib.toString());
-        } catch (ParseException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-
+        net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
+                .fromObject(jsonLib.toString());
+        // JSONParser jsonParser = new JSONParser();
+        // JSONObject jsonObject = null;
+        //
+        // try {
+        // System.out.println(jsonLib.toString());
+        // jsonObject = (JSONObject) jsonParser.parse(jsonLib.toString());
+        // } catch (ParseException e1) {
+        // // TODO Auto-generated catch block
+        // e1.printStackTrace();
+        // }
+        System.out.println(jsonLib.toString());
         MP3File mp3File = null;
         HashMap<String, String> information = new HashMap<String, String>();
 
         try {
             mp3File = new MP3File(new File(TEMP + "/" + fileName));
+            // mp3File.getID3v1Tag().setTitle("ą ę ó ś ł ż ź ć ń");
 
-            if (!mp3File.getID3v1Tag().getTitle().isEmpty()) {
-                information.put("title", getInformationFromList(mp3File
-                        .getID3v1Tag().getTitle()));
+            if (mp3File.getTag() != null) {
+                if (!mp3File.getID3v1Tag().getTitle().isEmpty()) {
+                    information.put("title", getInformationFromList(mp3File
+                            .getID3v1Tag().getTitle()));
+                    System.out.println(getInformationFromList(mp3File
+                            .getID3v1Tag().getTitle()));
+                    // System.out
+                    // .format(new Locale("pl", "PL"),
+                    // getInformationFromList(mp3File.getID3v1Tag()
+                    // .getTitle()));
+                } else {
+                    information.put("title", "");
+                }
+
+                if (!mp3File.getID3v1Tag().getArtist().isEmpty()) {
+                    information.put("artist", getInformationFromList(mp3File
+                            .getID3v1Tag().getArtist()));
+                } else {
+                    information.put("artist", "");
+                }
+
+                if (!mp3File.getID3v1Tag().getYear().isEmpty()) {
+                    information.put("year", getInformationFromList(mp3File
+                            .getID3v1Tag().getYear()));
+                } else {
+                    information.put("year", "");
+                }
+
+                if (!mp3File.getID3v1Tag().getAlbum().isEmpty()) {
+                    information.put("album", getInformationFromList(mp3File
+                            .getID3v1Tag().getAlbum()));
+                } else {
+                    information.put("album", "");
+                }
             } else {
+                // Fills with empty strings.
                 information.put("title", "");
-            }
-
-            if (!mp3File.getID3v1Tag().getArtist().isEmpty()) {
-                information.put("artist", getInformationFromList(mp3File
-                        .getID3v1Tag().getArtist()));
-            } else {
                 information.put("artist", "");
-            }
-
-            if (!mp3File.getID3v1Tag().getYear().isEmpty()) {
-                information.put("year", getInformationFromList(mp3File
-                        .getID3v1Tag().getYear()));
-            } else {
                 information.put("year", "");
-            }
-
-            if (!mp3File.getID3v1Tag().getAlbum().isEmpty()) {
-                information.put("album", getInformationFromList(mp3File
-                        .getID3v1Tag().getAlbum()));
-            } else {
                 information.put("album", "");
             }
 
@@ -229,16 +244,21 @@ public class JSONBuilder {
         information.put("location", path + fileName);
         jsonObject.put(fileName, information);
 
-        try {
-            jsonLib.write(jsonObject.toString().getBytes());
-        } catch (IOException ioe) {
-            logger.error(ioe);
-            logger.debug(ioe);
-        }
+        // try {
+        // System.out.println(jsonObject.toString());
+        //
+        // jsonLib.write(jsonObject.toString().getBytes());
+        // // jsonLib.write(jsonObject.toString().getBytes());
+        //
+        // } catch (IOException ioe) {
+        // logger.error(ioe);
+        // logger.debug(ioe);
+        // }
 
         System.out.println(jsonObject.toString());
 
-        return new ByteArrayInputStream(jsonObject.toString().getBytes());
+        return jsonObject;// new
+                          // ByteArrayInputStream(jsonObject.toString().getBytes());
     }
 
     /**
