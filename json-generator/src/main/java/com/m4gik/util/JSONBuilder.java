@@ -13,6 +13,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,18 +25,19 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.audio.mp3.MP3File;
-import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.mpatric.mp3agic.InvalidDataException;
+import com.mpatric.mp3agic.Mp3File;
+import com.mpatric.mp3agic.UnsupportedTagException;
 
 /**
  * This class is responsible for building JSON library. The basic operation of
@@ -65,9 +71,39 @@ public class JSONBuilder {
             .getName());
 
     /**
+     * Map to changing special letters to polish.
+     */
+    static Map<Character, Character> polishLettersMap;
+
+    /**
      * This constant value keeps location for temporary folder.
      */
     public final static String TEMP = "temp/";
+
+    /**
+     * Map of polish letters
+     */
+    static {
+        polishLettersMap = new HashMap<Character, Character>();
+        polishLettersMap.put('¥', 'Ą');
+        polishLettersMap.put('¹', 'ą');
+        polishLettersMap.put('Æ', 'Ć');
+        polishLettersMap.put('æ', 'ć');
+        polishLettersMap.put('Ê', 'Ę');
+        polishLettersMap.put('ê', 'ę');
+        polishLettersMap.put('£', 'Ł');
+        polishLettersMap.put('³', 'ł');
+        polishLettersMap.put('Ñ', 'Ń');
+        polishLettersMap.put('ñ', 'ń');
+        polishLettersMap.put('Ó', 'Ó');
+        polishLettersMap.put('ó', 'ó');
+        polishLettersMap.put('', 'Ś');
+        polishLettersMap.put('', 'ś');
+        polishLettersMap.put('', 'Ź');
+        polishLettersMap.put('', 'ź');
+        polishLettersMap.put('¯', 'Ż');
+        polishLettersMap.put('¿', 'ż');
+    }
 
     /**
      * This method build JSON object with given properties.
@@ -110,6 +146,42 @@ public class JSONBuilder {
     }
 
     /**
+     * Convert from internal Java String format -> UTF-8.
+     * 
+     * @param pIncomingString
+     * @return Converted String.
+     * @throws CharacterCodingException
+     */
+    public static String convertStringToUTF8(String pIncomingString)
+            throws CharacterCodingException {
+
+        CharsetDecoder cd = Charset.availableCharsets().get("UTF-8")
+                .newDecoder();
+        CharBuffer buffer = cd.decode(ByteBuffer.wrap(pIncomingString
+                .getBytes()));
+
+        return convertToPolishLetters(buffer.toString());
+    }
+
+    /**
+     * This method converts special signs to polish letters.
+     * 
+     * @param convertedString
+     *            The string converted to UTF-8.
+     * @return Converted String with polish characters instead of special
+     *         characters.
+     */
+    private static String convertToPolishLetters(String convertedString) {
+        StringBuilder sb = new StringBuilder();
+
+        for (char ch : convertedString.toCharArray()) {
+            sb.append(isNormalLetter(ch) ? ch : polishLettersMap.get(ch));
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * This method gets current data time.
      * 
      * @return The current data time in format yyyy/MM/dd HH:mm:ss.
@@ -128,6 +200,7 @@ public class JSONBuilder {
      *            The list with information.
      * @return The single string with information from the list.
      */
+    @SuppressWarnings("unused")
     private static String getInformationFromList(List<TagField> informationList) {
         String information = "";
 
@@ -154,108 +227,75 @@ public class JSONBuilder {
             String path, OutputStream jsonLib) {
         net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
                 .fromObject(jsonLib.toString());
-        // JSONParser jsonParser = new JSONParser();
-        // JSONObject jsonObject = null;
-        //
-        // try {
-        // System.out.println(jsonLib.toString());
-        // jsonObject = (JSONObject) jsonParser.parse(jsonLib.toString());
-        // } catch (ParseException e1) {
-        // // TODO Auto-generated catch block
-        // e1.printStackTrace();
-        // }
-        System.out.println(jsonLib.toString());
-        MP3File mp3File = null;
+
+        Mp3File mp3File = null;
+        File file = null;
         HashMap<String, String> information = new HashMap<String, String>();
 
         try {
-            mp3File = new MP3File(new File(TEMP + "/" + fileName));
-            // mp3File.getID3v1Tag().setTitle("ą ę ó ś ł ż ź ć ń");
 
-            if (mp3File.getTag() != null) {
-                if (!mp3File.getID3v1Tag().getTitle().isEmpty()) {
-                    information.put("title", getInformationFromList(mp3File
-                            .getID3v1Tag().getTitle()));
-                    System.out.println(getInformationFromList(mp3File
-                            .getID3v1Tag().getTitle()));
-                    // System.out
-                    // .format(new Locale("pl", "PL"),
-                    // getInformationFromList(mp3File.getID3v1Tag()
-                    // .getTitle()));
-                } else {
-                    information.put("title", "");
+            file = new File(TEMP + "/" + fileName);
+            mp3File = new Mp3File(TEMP + "/" + fileName);
+
+            if (mp3File.hasId3v2Tag()) {
+
+                mp3File.getId3v2Tag().setEncoder("UTF-8");
+
+                if (mp3File.getId3v2Tag().getTitle() != null) {
+                    information.put("title", convertStringToUTF8(mp3File
+                            .getId3v2Tag().getTitle()));
                 }
 
-                if (!mp3File.getID3v1Tag().getArtist().isEmpty()) {
-                    information.put("artist", getInformationFromList(mp3File
-                            .getID3v1Tag().getArtist()));
-                } else {
-                    information.put("artist", "");
+                if (mp3File.getId3v2Tag().getArtist() != null) {
+                    information.put("artist", convertStringToUTF8(mp3File
+                            .getId3v2Tag().getArtist()));
                 }
 
-                if (!mp3File.getID3v1Tag().getYear().isEmpty()) {
-                    information.put("year", getInformationFromList(mp3File
-                            .getID3v1Tag().getYear()));
-                } else {
-                    information.put("year", "");
+                if (mp3File.getId3v2Tag().getYear() != null) {
+                    information.put("year", convertStringToUTF8(mp3File
+                            .getId3v2Tag().getYear()));
                 }
 
-                if (!mp3File.getID3v1Tag().getAlbum().isEmpty()) {
-                    information.put("album", getInformationFromList(mp3File
-                            .getID3v1Tag().getAlbum()));
-                } else {
-                    information.put("album", "");
+                if (mp3File.getId3v2Tag().getAlbum() != null) {
+                    information.put("album", convertStringToUTF8(mp3File
+                            .getId3v2Tag().getAlbum()));
                 }
-            } else {
-                // Fills with empty strings.
-                information.put("title", "");
-                information.put("artist", "");
-                information.put("year", "");
-                information.put("album", "");
             }
-
-            information.put("lenght", getTime(mp3File.getMP3AudioHeader()
-                    .getTrackLength()));
-            information.put("bit rate", mp3File.getMP3AudioHeader()
-                    .getBitRate());
-            information.put("size",
-                    new Long(mp3File.getFile().getTotalSpace()).toString());
-
+        } catch (UnsupportedTagException e1) {
+            logger.error(e1);
+            logger.debug(e1);
+        } catch (InvalidDataException e1) {
+            logger.error(e1);
+            logger.debug(e1);
         } catch (IOException ioe) {
             logger.error(ioe);
             logger.debug(ioe);
-        } catch (TagException e) {
-            logger.error(e);
-            logger.debug(e);
-        } catch (ReadOnlyFileException e) {
-            logger.error(e);
-            logger.debug(e);
-        } catch (InvalidAudioFrameException e) {
-            logger.error(e);
-            logger.debug(e);
-        } catch (NullPointerException e) {
-            logger.error(e);
-            logger.debug(e);
         }
 
-        mp3File.getFile().delete();
+        if (!information.containsKey("title")) {
+            information.put("title", "");
+        }
+
+        if (!information.containsKey("artist")) {
+            information.put("artist", "");
+        }
+
+        if (!information.containsKey("year")) {
+            information.put("year", "");
+        }
+
+        if (!information.containsKey("album")) {
+            information.put("album", "");
+        }
+
+        information.put("lenght", getTime(mp3File.getLength()));
+        information.put("bit rate", Integer.toString(mp3File.getBitrate()));
+        information.put("size", new Long(file.getTotalSpace()).toString());
         information.put("orginal name", fileName);
         information.put("directory", path);
         information.put("location", path + fileName);
         jsonObject.put(fileName, information);
-
-        // try {
-        // System.out.println(jsonObject.toString());
-        //
-        // jsonLib.write(jsonObject.toString().getBytes());
-        // // jsonLib.write(jsonObject.toString().getBytes());
-        //
-        // } catch (IOException ioe) {
-        // logger.error(ioe);
-        // logger.debug(ioe);
-        // }
-
-        System.out.println(jsonObject.toString());
+        file.delete();
 
         return jsonObject;
     }
@@ -272,6 +312,23 @@ public class JSONBuilder {
         DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
 
         return formatter.format(date);
+    }
+
+    /**
+     * This method checks if given character is inside map of polish letters.
+     * 
+     * @param ch
+     *            The character to check.
+     * @return True if char is different from polish map.
+     */
+    private static Boolean isNormalLetter(char ch) {
+        Boolean isNormal = false;
+
+        if (!polishLettersMap.containsKey(ch)) {
+            isNormal = true;
+        }
+
+        return isNormal;
     }
 
     /**
@@ -431,7 +488,7 @@ public class JSONBuilder {
      */
     @SuppressWarnings({ "unchecked" })
     public InputStream initLibrary() {
-        JSONObject library = new JSONObject();
+        net.sf.json.JSONObject library = new net.sf.json.JSONObject();
         HashMap<String, String> information = new HashMap<String, String>();
 
         information.put("information", HEADER);
@@ -441,7 +498,7 @@ public class JSONBuilder {
         information.put("contact", "michal.szczygiel@wp.pl");
         library.put("_comment", information);
 
-        return new ByteArrayInputStream(library.toJSONString().getBytes());
+        return new ByteArrayInputStream(library.toString().getBytes());
 
     }
 }

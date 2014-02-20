@@ -45,7 +45,6 @@ public class Main {
         logger.debug("Bulding library process in progress...");
         ftpConn.retrieveFiles(properties[3]);
         clean();
-
     }
 
     /**
@@ -186,7 +185,7 @@ public class Main {
      */
     private static void loggerSetup() {
         // BasicConfigurator.configure();
-        mp3LoggerSetup();
+        // mp3LoggerSetup();
     }
 
     /**
