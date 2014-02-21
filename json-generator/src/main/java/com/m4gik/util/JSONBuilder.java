@@ -343,8 +343,8 @@ public class JSONBuilder {
                 .getTrackLength() * 1000));
         information.put("bit rate", fileInformation.getAudioHeader()
                 .getBitRate());
-        information.put("size", new Long(fileInformation.getFile()
-                .getTotalSpace()).toString());
+        information.put("size",
+                new Long(fileInformation.getFile().length()).toString());
         information.put("orginal name", fileName);
         information.put("directory", path);
         information.put("web-directory", getWebDirectory(path + fileName));
