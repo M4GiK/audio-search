@@ -43,28 +43,10 @@ public class Main {
         FTPConnection ftpConn = initConnection(properties[0], properties[1],
                 properties[2], properties[3]);
         logger.debug("Bulding library process in progress...");
+        System.out.println("Budowanie biblioteki w toku: ");
         ftpConn.retrieveFiles(properties[3]);
         clean();
     }
-
-    /**
-     * 
-     * @param address
-     * @param login
-     * @param password
-     * @param path
-     */
-    // private static void buildLibrary(String address, String login,
-    // String password, String path) {
-    // initConfiguration();
-    // FTPConnection ftpConn = initConnection(address, login, password, path);
-    // logger.debug("Bulding library process in progress...");
-    // ftpConn.retrieveFiles(path);
-    // // ftpConn.storeFile(new JSONBuilder().createJSONFile(), args[3]
-    // // + JSONBuilder.JSON_FILE);
-    // // new JSONBuilder().buildLibrary();
-    // clean();
-    // }
 
     /**
      * This method builds file with properties.
@@ -115,6 +97,8 @@ public class Main {
     }
 
     /**
+     * This method checks if is existing properties file for application and
+     * also validate the correctness of this file.
      * 
      * @param jsonProperties
      * @return
@@ -185,7 +169,7 @@ public class Main {
      */
     private static void loggerSetup() {
         // BasicConfigurator.configure();
-        // mp3LoggerSetup();
+        mp3LoggerSetup();
     }
 
     /**
@@ -229,7 +213,8 @@ public class Main {
     }
 
     /**
-     * 
+     * This method prints useful information for user. Shows basic instruction
+     * how lunch application.
      */
     private static void printInfromation() {
         logger.debug("The application needs 4 arguments: "

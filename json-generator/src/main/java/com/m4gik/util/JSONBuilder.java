@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +34,6 @@ import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
 import org.jaudiotagger.audio.mp3.MP3File;
 import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -55,7 +53,7 @@ import com.mpatric.mp3agic.UnsupportedTagException;
 public class JSONBuilder {
 
     /**
-     * The
+     * The constant variable of comment for JSON library.
      */
     public final static String COMMENT = "_comment";
 
@@ -65,7 +63,7 @@ public class JSONBuilder {
     private final static String HEADER = "JSON audio library";
 
     /**
-     * Constant variable for name of JSOn library with extension.
+     * Constant variable for name of JSON library with extension.
      */
     public final static String JSON_FILE = "lib.json";
 
@@ -538,52 +536,5 @@ public class JSONBuilder {
         }
 
         return isValid;
-    }
-
-    /**
-     * @throws IOException
-     * 
-     */
-    public void buildLibrary() throws IOException {
-        // MP3File mp3 = new MP3File(path, file.getName());
-        // logger.debug(mp3.getArtist().getTextContent());
-
-        JSONObject obj = new JSONObject();
-        obj.put("__comment", "JSON Library");
-        obj.put("Author", "Arpit");
-
-        JSONArray company = new JSONArray();
-        company.add("Compnay: eBay");
-        company.add("Compnay: Paypal");
-        company.add("Compnay: Google");
-        obj.put("Company List", company);
-
-        FileWriter file = null;
-
-        try {
-            file = new FileWriter(JSON_FILE);
-            file.write(obj.toJSONString());
-            System.out.println("Successfully Copied JSON Object to File...");
-            System.out.println("\nJSON Object: " + obj);
-        } catch (IOException ioe) {
-            logger.error(ioe);
-            logger.debug(ioe);
-
-        } finally {
-            file.flush();
-            file.close();
-        }
-    }
-
-    /**
-     * TODO Delete this method.
-     * 
-     * @return
-     */
-    public InputStream createJSONFile() {
-        byte buf[] = HEADER.getBytes();
-        InputStream JSONFile = new ByteArrayInputStream(buf);
-
-        return JSONFile;
     }
 }

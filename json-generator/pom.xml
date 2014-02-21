@@ -41,14 +41,6 @@
 	<dependencies>
 	
 		<dependency>
-			<artifactId>java_mp3</artifactId>
-			<groupId>java_mp3</groupId>
-			<version>0.4</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/java_mp3.jar</systemPath>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
 			<version>3.3</version>

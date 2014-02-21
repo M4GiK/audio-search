@@ -126,8 +126,11 @@ public class FTPConnection {
     }
 
     /**
+     * This method checks JSON file on server.
      * 
      * @param path
+     *            The location of JSON file on server.
+     * @return If true if library is checked.
      */
     private Boolean checkJsonFile(String path) {
         OutputStream jsonLib = null;
@@ -392,9 +395,12 @@ public class FTPConnection {
     }
 
     /**
+     * This method retrieves file as InputStream from current path.
      * 
      * @param file
+     *            The file to download.
      * @param path
+     *            The location of file on server side.
      */
     private void retrieveInputStream(FTPFile file, String path) {
         if (!checkLibrary(file.getName())) {
@@ -437,6 +443,8 @@ public class FTPConnection {
     }
 
     /**
+     * This method sets OutputStream for JSON library.
+     * 
      * @param jsonLib
      *            the jsonLib to set
      */
@@ -445,6 +453,8 @@ public class FTPConnection {
     }
 
     /**
+     * This method sets path for location of JSON library on server.
+     * 
      * @param libraryPath
      *            the libraryPath to set
      */
@@ -463,9 +473,12 @@ public class FTPConnection {
     }
 
     /**
+     * This method stores file on server.
      * 
      * @param inputStream
+     *            The stream to storing as file on server.
      * @param path
+     *            The location for storing stream as file.
      */
     public void storeFile(InputStream inputStream, String path) {
         try {
