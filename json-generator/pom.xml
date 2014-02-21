@@ -8,6 +8,10 @@
 	<name>json-generator</name>
 	
 	<url>http://maven.apache.org</url>
+	
+	 <properties>
+	 	<log4j.properties.directory>src/main/java</log4j.properties.directory>
+	 </properties>
 
 	<repositories>
 		<repository>
@@ -37,14 +41,6 @@
 	<dependencies>
 	
 		<dependency>
-			<artifactId>java_mp3</artifactId>
-			<groupId>java_mp3</groupId>
-			<version>0.4</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/java_mp3.jar</systemPath>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
 			<version>3.3</version>
@@ -56,6 +52,61 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>net.sf.json-lib</groupId>
+			<artifactId>json-lib</artifactId>
+			<version>2.4</version>
+			<classifier>jdk15</classifier>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-vfs2</artifactId>
+			<version>2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+		
+		<dependency>
+			  <groupId>com.mpatric</groupId>
+			  <artifactId>mp3agic</artifactId>
+			  <version>0.8.2</version>
+		</dependency>
 	
 	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${log4j.properties.directory}</directory>
+				<includes>
+					<include>log4j.properties</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+	
 </project>
