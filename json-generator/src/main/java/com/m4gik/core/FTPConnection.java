@@ -380,7 +380,7 @@ public class FTPConnection {
 
         try {
             for (FTPFile file : ftp.listFiles(path)) {
-                if (file.isFile()) {
+                if (file.isFile() && checkExtension(file.getName(), "mp3")) {
                     updateProgress(progressPercentage(currentAmount++));
                     // retrieveFile(file, path);
                     retrieveInputStream(file, path);
