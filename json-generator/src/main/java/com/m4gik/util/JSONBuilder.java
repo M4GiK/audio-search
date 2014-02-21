@@ -26,9 +26,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.audio.mp3.MP3File;
+import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.TagField;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -48,6 +53,11 @@ import com.mpatric.mp3agic.UnsupportedTagException;
  * 
  */
 public class JSONBuilder {
+
+    /**
+     * The
+     */
+    public final static String COMMENT = "_comment";
 
     /**
      * Header for JSON library.
@@ -106,6 +116,24 @@ public class JSONBuilder {
     }
 
     /**
+     * This method converts the array of String to single String.
+     * 
+     * @param split
+     *            The split String into array.
+     * @return Converted String from array to single String.
+     */
+    private static String arrayToString(String[] splitString) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (String string : splitString) {
+            stringBuilder.append(string);
+            stringBuilder.append(" ");
+        }
+
+        return stringBuilder.toString();
+    }
+
+    /**
      * This method build JSON object with given properties.
      * 
      * @param address
@@ -154,7 +182,6 @@ public class JSONBuilder {
      */
     public static String convertStringToUTF8(String pIncomingString)
             throws CharacterCodingException {
-
         CharsetDecoder cd = Charset.availableCharsets().get("UTF-8")
                 .newDecoder();
         CharBuffer buffer = cd.decode(ByteBuffer.wrap(pIncomingString
@@ -179,6 +206,23 @@ public class JSONBuilder {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * This method creates basic information of comments for JSON library.
+     * 
+     * @return The basic information for JSON library.
+     */
+    private static Object getCommentInformation() {
+        HashMap<String, String> information = new HashMap<String, String>();
+
+        information.put("information", HEADER);
+        information.put("update", getCurrentDateTime());
+        information.put("file name", JSON_FILE);
+        information.put("author", "Michał Szczygieł");
+        information.put("contact", "michal.szczygiel@wp.pl");
+
+        return information;
     }
 
     /**
@@ -229,12 +273,12 @@ public class JSONBuilder {
                 .fromObject(jsonLib.toString());
 
         Mp3File mp3File = null;
-        File file = null;
+        MP3File fileInformation = null;
         HashMap<String, String> information = new HashMap<String, String>();
 
         try {
 
-            file = new File(TEMP + "/" + fileName);
+            fileInformation = new MP3File(TEMP + "/" + fileName);
             mp3File = new Mp3File(TEMP + "/" + fileName);
 
             if (mp3File.hasId3v2Tag()) {
@@ -270,10 +314,19 @@ public class JSONBuilder {
         } catch (IOException ioe) {
             logger.error(ioe);
             logger.debug(ioe);
+        } catch (TagException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (ReadOnlyFileException e) {
+            logger.error(e);
+            logger.debug(e);
+        } catch (InvalidAudioFrameException e) {
+            logger.error(e);
+            logger.debug(e);
         }
 
         if (!information.containsKey("title")) {
-            information.put("title", "");
+            information.put("title", arrayToString(fileName.split("_")));
         }
 
         if (!information.containsKey("artist")) {
@@ -288,14 +341,18 @@ public class JSONBuilder {
             information.put("album", "");
         }
 
-        information.put("lenght", getTime(mp3File.getLength()));
-        information.put("bit rate", Integer.toString(mp3File.getBitrate()));
-        information.put("size", new Long(file.getTotalSpace()).toString());
+        information.put("lenght", getTime(fileInformation.getAudioHeader()
+                .getTrackLength() * 1000));
+        information.put("bit rate", fileInformation.getAudioHeader()
+                .getBitRate());
+        information.put("size", new Long(fileInformation.getFile()
+                .getTotalSpace()).toString());
         information.put("orginal name", fileName);
         information.put("directory", path);
+        information.put("web-directory", getWebDirectory(path + fileName));
         information.put("location", path + fileName);
         jsonObject.put(fileName, information);
-        file.delete();
+        fileInformation.getFile().delete();
 
         return jsonObject;
     }
@@ -310,8 +367,35 @@ public class JSONBuilder {
     private static String getTime(long length) {
         Date date = new Date(length);
         DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         return formatter.format(date);
+    }
+
+    /**
+     * This method generates web directory from given path. Mainly deletes
+     * prefix to first slash.
+     * 
+     * @param path
+     *            The path on server side.
+     * @return The path for web directory.
+     */
+    private static String getWebDirectory(String path) {
+        String subString = path.substring(path.indexOf('/') + 1, path.length());
+
+        return subString.substring(subString.indexOf('/') + 1,
+                subString.length());
+    }
+
+    /**
+     * This method initialize the JSON library.
+     */
+    public static InputStream initLibrary() {
+        net.sf.json.JSONObject library = new net.sf.json.JSONObject();
+        library.put(COMMENT, getCommentInformation());
+
+        return new ByteArrayInputStream(library.toString().getBytes());
+
     }
 
     /**
@@ -376,6 +460,25 @@ public class JSONBuilder {
     @SuppressWarnings("rawtypes")
     public static List safe(List list) {
         return list == null ? Collections.EMPTY_LIST : list;
+    }
+
+    /**
+     * This method updates header in JSON library.
+     * 
+     * @param jsonLib
+     * 
+     * @return The InputStream of updated JSON library.
+     */
+    public static net.sf.json.JSONObject updateJsonHeader(OutputStream jsonLib) {
+        net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject
+                .fromObject(jsonLib.toString());
+
+        if (jsonObject.containsKey(COMMENT)) {
+            jsonObject.discard(COMMENT);
+            jsonObject.put(COMMENT, getCommentInformation());
+        }
+
+        return jsonObject;
     }
 
     /**
@@ -473,6 +576,7 @@ public class JSONBuilder {
     }
 
     /**
+     * TODO Delete this method.
      * 
      * @return
      */
@@ -481,24 +585,5 @@ public class JSONBuilder {
         InputStream JSONFile = new ByteArrayInputStream(buf);
 
         return JSONFile;
-    }
-
-    /**
-     * This method initialize the JSON library.
-     */
-    @SuppressWarnings({ "unchecked" })
-    public InputStream initLibrary() {
-        net.sf.json.JSONObject library = new net.sf.json.JSONObject();
-        HashMap<String, String> information = new HashMap<String, String>();
-
-        information.put("information", HEADER);
-        information.put("update", getCurrentDateTime());
-        information.put("file name", JSON_FILE);
-        information.put("author", "Michał Szczygieł");
-        information.put("contact", "michal.szczygiel@wp.pl");
-        library.put("_comment", information);
-
-        return new ByteArrayInputStream(library.toString().getBytes());
-
     }
 }

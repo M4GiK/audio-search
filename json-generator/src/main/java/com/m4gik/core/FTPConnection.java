@@ -142,7 +142,8 @@ public class FTPConnection {
                 jsonLib.flush();
                 setJsonLib(jsonLib);
             } else {
-                storeFile(new JSONBuilder().initLibrary(), path
+                new JSONBuilder();
+                storeFile(JSONBuilder.initLibrary(), path
                         + JSONBuilder.JSON_FILE);
                 checkJsonFile(path);
             }
@@ -170,7 +171,7 @@ public class FTPConnection {
     private Boolean checkLibrary(String FileName) {
         Boolean isExisting = false;
 
-        if (JSONBuilder.checkExistingKey(jsonLib, FileName)) {
+        if (JSONBuilder.checkExistingKey(getJsonLib(), FileName)) {
             isExisting = true;
         }
 
@@ -331,6 +332,7 @@ public class FTPConnection {
      *            The location of file on server side.
      * @return The retrieved file.
      */
+    @SuppressWarnings("unused")
     private void retrieveFile(FTPFile file, String path) {
         if (!checkLibrary(file.getName())) {
             FileOutputStream outStream = null;
@@ -363,10 +365,15 @@ public class FTPConnection {
     }
 
     /**
+     * This method retrieves files from given directory.
      * 
      * @param path
+     *            The path for audio files location.
      */
     public void retrieveFiles(String path) {
+        storeFile(new ByteArrayInputStream(updateMemory(JSONBuilder
+                .updateJsonHeader(getJsonLib()).toString().getBytes())),
+                getLibraryPath());
 
         try {
             for (FTPFile file : ftp.listFiles(path)) {
