@@ -323,8 +323,10 @@ public class JSONBuilder {
             logger.debug(e);
         }
 
-        if (!information.containsKey("title")) {
-            information.put("title", arrayToString(fileName.split("_")));
+        if (!information.containsKey("title")
+                || information.get("title").equals("")) {
+            information.put("title",
+                    removeMP3Extension(arrayToString(fileName.split("_"))));
         }
 
         if (!information.containsKey("artist")) {
@@ -446,6 +448,24 @@ public class JSONBuilder {
         }
 
         return properties;
+    }
+
+    /**
+     * This method removes mp3 extension from given string.
+     * 
+     * @param name
+     *            The string with mp3 extension.
+     * @return The string without mp3 extension.
+     */
+    private static String removeMP3Extension(String name) {
+        String stringWithoutExtension = name;
+        Integer i = name.lastIndexOf('.');
+
+        if (i > 0) {
+            stringWithoutExtension = name.substring(0, i);
+        }
+
+        return stringWithoutExtension;
     }
 
     /**
