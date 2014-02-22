@@ -46,6 +46,7 @@ public class Main {
         System.out.println("Budowanie biblioteki w toku: ");
         ftpConn.retrieveFiles(properties[3]);
         clean();
+        System.out.println("\nBudowanie biblioteki zakończone pomyślnie.");
     }
 
     /**
