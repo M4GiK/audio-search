@@ -20,6 +20,8 @@ jQuery(document).ready(function($) {
 	    });
 	    return json;
 	})(); 
+  
+  alert(AudioLibrary.Bog_szczyci_sie_ze_swojego_slugi_RBoryczka.mp3);
 
   $.each(all_genre, function(i, g){
     $genre_container.append(genre_template({genre: g}));
