@@ -462,3 +462,12 @@ h2{
     line-height: 19px;
     text-align: center;
 }
+
+.pobierz {
+    border-collapse: collapse;
+    color: #FFF;
+    font-family: Verdana;
+    font-size: 16px;
+    line-height: 19px;
+    text-align: center;
+}

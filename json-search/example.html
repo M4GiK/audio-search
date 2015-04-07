@@ -17,8 +17,8 @@
     <script src="assets/js/jquery-ui-1.10.2.custom.min.js"
             type="text/javascript"></script>
     <script src="assets/js/filter.js" type="text/javascript"></script>
-    <!--<script src="assets/js/movies.js" type="text/javascript"></script>-->
-    <script src="assets/js/index.js" type="text/javascript"></script>
+    <script src="assets/js/nagrania-kznh.js" type="text/javascript"></script>
+    <script src="assets/js/kznh-filter.js" type="text/javascript"></script>
     <link href="assets/css/style.css" rel="stylesheet" type="text/css">
 
     <title>Kościoł Zielonoświątkowy</title>
@@ -95,46 +95,45 @@
 
     <div class="sidebar col-span-3">
         <div class="criteria" id="runtime_criteria">
-            <h4>Czas trwania</h4>
-            <span id="runtime_range_label" class="slider-label">50 mins - 250 mins</span>
-
-            <div id="runtime_slider" class="slider"></div>
-            <input type="hidden" id="runtime_filter" value="50-250">
+            <h4>Mówcy</h4>
+            <select id="mowcy" class="col-span-10">
+                <option value="all">Wszyscy</option>
+                <option value="Paweł Sochacki">Paweł Sochacki</option>
+                <option value="Leszek Korzeniecki">Leszek Korzeniecki</option>
+            </select>
         </div>
+
         <div class="criteria" id="year_criteria">
             <h4>Rok</h4>
-            <select id="year_filter" class="col-span-8">
+            <select id="year_filter" class="col-span-10">
                 <option value="all">Wszystkie (1999 - 2015)</option>
-                <option value="1999">1999 rok</option>
-                <option value="2000">2000 rok</option>
-                <option value="2001">2001 rok</option>
-                <option value="2002">2002 rok</option>
-                <option value="2003">2003 rok</option>
-                <option value="2004">2004 rok</option>
-                <option value="2005">2005 rok</option>
-                <option value="2006">2006 rok</option>
-                <option value="2007">2007 rok</option>
-                <option value="2008">2008 rok</option>
-                <option value="2009">2009 rok</option>
-                <option value="2010">2010 rok</option>
-                <option value="2011">2011 rok</option>
-                <option value="2012">2012 rok</option>
-                <option value="2013">2013 rok</option>
-                <option value="2014">2014 rok</option>
-                <option value="2015">2015 rok</option>
+                <option value="1999-1999">1999 rok</option>
+                <option value="2000-2000">2000 rok</option>
+                <option value="2001-2001">2001 rok</option>
+                <option value="2002-2002">2002 rok</option>
+                <option value="2003-2003">2003 rok</option>
+                <option value="2004-2004">2004 rok</option>
+                <option value="2005-2005">2005 rok</option>
+                <option value="2006-2006">2006 rok</option>
+                <option value="2007-2007">2007 rok</option>
+                <option value="2008-2008">2008 rok</option>
+                <option value="2009-2009">2009 rok</option>
+                <option value="2010-2010">2010 rok</option>
+                <option value="2011-2011">2011 rok</option>
+                <option value="2012-2012">2012 rok</option>
+                <option value="2013-2013">2013 rok</option>
+                <option value="2014-2014">2014 rok</option>
+                <option value="2015-2015">2015 rok</option>
             </select>
         </div>
     </div>
     <div class="sidebar col-span-9">
         <div class="row">
-            <h4 class="col-span-6"> Nagrania (<span id="total_movies">250</span>)
+            <h4 class="col-span-6"> Nagrania (<span id="total_movies">0</span>)
             </h4>
-            <div class="col-span-6 progress">
-                <div class="progress-bar" id="stream_progress" style="width: 0%">0 %</div>
-            </div>
         </div>
         <div>
-            <input type="text" id="searchbox" placeholder="Search...">
+            <input type="text" id="searchbox" placeholder="Szukaj...">
             <span class="glyphicon glyphicon-search search-icon"></span>
         </div>
         <div class="sorting content col-span-12">
@@ -147,22 +146,27 @@
 
                 <table class="nagrania-kznh" border="1"  bordercolorlight="#C1CFDC" bordercolordark="#C1CFDC" height="84"  align="center">
                     <tr>
-                        <td align="center" height="15" width="316"><b>NAGRANIE</b></td>
-                        <td align="center" height="15"  width="122"><b>POBIERZ</b></td>
+                        <td align="center" height="15" width="500"><b>NAGRANIE</b></td>
+                        <td align="center" height="15"  width="50"><b>POBIERZ</b></td>
                     </tr>
 
                     <tr class="kazania_pastor">
-                        <td width="282" height="69">
+                        <td width="500" height="69">
                             <div class="caption">
-                                <h4><%= name %></h4>
+                                <h4><%= title %></h4>
                             </div>
-                            21.01.2012
-                            <br/>
 
-                            <b> Leszek Korzeniecki-</b>
+                            <span class="runtime">
+                                <i class="glyphicon glyphicon-time"></i>
+                                <%= lenght %>
+                            </span>
+
+                            <div class="detail">
+                                <b style="font-size: 11px;"> <%= artist %> </b>
+                            </div>
                             <br>
-                            &quot;Dar uzdrawiania&quot;</td>
-                        <td width="59" height="69"><a href="nagrania/kazania/2012/02_Dar_uzdrawiania_LKorzeniecki.mp3"> <img border="0" src="assets/images/Floppy.gif" width="22" height="22" alt="Pobierz nagranie"></a></td>
+                            </td>
+                        <td class="pobierz" width="50" height="69"><a href="nagrania/kazania/2012/02_Dar_uzdrawiania_LKorzeniecki.mp3"> <img border="0" src="assets/images/Floppy.gif" width="22" height="22" alt="Pobierz nagranie"></a></td>
                     </tr>
 
                     <tr class="kazania_pastor">
@@ -176,36 +180,6 @@
                             <!--</object></td>-->
                     </tr>
                 </table>
-
-
-                <!--<div class="thumbnail">-->
-            <!--<span class="label label-success rating"><%= rating %>-->
-            <!--<i class="glyphicon glyphicon-star"></i>-->
-          <!--</span>-->
-
-                    <!--<div class="caption">-->
-                        <!--<h4><%= name %></h4>-->
-
-                        <!--<div class="outline">-->
-                            <!--<%= outline %>-->
-              <!--<span class="runtime">-->
-                <!--<i class="glyphicon glyphicon-time"></i>-->
-                <!--<%= runtime %> mins.-->
-              <!--</span>-->
-                        <!--</div>-->
-                        <!--<div class="detail">-->
-                            <!--<dl>-->
-                                <!--<dt>Director</dt>-->
-                                <!--<dd><%= director %></dd>-->
-                                <!--<dt>Actors</dt>-->
-                                <!--<dd><%= stars %>-->
-                                <!--</dt>-->
-                                <!--<dt>Year</dt>-->
-                                <!--<dd><%= year %></dd>-->
-                            <!--</dl>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
             </div>
         </script>
 
