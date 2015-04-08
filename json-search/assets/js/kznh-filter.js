@@ -18,13 +18,44 @@ $(document).ready(function(){
     }
     //appendToContainer: appendToContainer
   });
+  
+  var speakers = [];
 
-  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
-  FJS.addCriteria({field: 'mowca', ele: '#mowcy', all: 'all'});
-//  FJS.addCriteria({field: 'runtime', ele: '#runtime_filter', type: 'range'});
+  jQuery.getJSON("assets/library/lib.json", function(data, textStatus) {
+  	if (textStatus == "success") {
+  		jQuery.each(data, function(key, value) {
+  			if (key != "_comment") {
+  				jQuery.each(value, function(key, value) {
+  					if (key == "artist") {
+  						if (value != "") {
+  							speakers.push(value);
+  						}
+  					}
+  				});
+  			}
+  		});
+  		
+  		var uniqueNames = speakers.filter(function(item, pos) {
+  		    return speakers.indexOf(item) == pos;
+  		})
+  		
+  		uniqueNames.sort();
 
+  		jQuery.each(uniqueNames, function(i, value){
+  		    jQuery('#mowcy').append(jQuery("<option></option>").attr("value", value).text(value)); 
+  		});
+  		
+  	  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
+  	  FJS.addCriteria({field: 'mowca', ele: '#mowcy', all: 'all'});
+  	  //  FJS.addCriteria({field: 'runtime', ele: '#runtime_filter', type: 'range'});
 
-  window.FJS = FJS;
+  	  window.FJS = FJS;
+  		
+  	} else {
+  		alert("JSON non-success status: " + textStatus);
+  	}
+  });
+
 });
 
 function initSliders(){
@@ -65,13 +96,12 @@ $(window).load(function(){
     }
 });
 
-$(document).ready(function()
-    {
-       $("#RollOver4 a").hover(function()
-       {
-          $(this).children("span").stop().fadeTo(500, 0);
-       }, function()
-       {
-          $(this).children("span").stop().fadeTo(500, 1);
-       });
-    });
+$(document).ready(function() {
+   $("#RollOver4 a").hover(function()
+   {
+      $(this).children("span").stop().fadeTo(500, 0);
+   }, function()
+   {
+      $(this).children("span").stop().fadeTo(500, 1);
+   });
+});
