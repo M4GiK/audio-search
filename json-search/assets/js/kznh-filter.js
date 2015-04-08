@@ -46,7 +46,7 @@ $(document).ready(function(){
   		});
   		
   	  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
-  	  FJS.addCriteria({field: 'mowca', ele: '#mowcy', all: 'all'});
+  	  FJS.addCriteria({field: 'artist', ele: '#mowcy', all: 'all'});
   	  //  FJS.addCriteria({field: 'runtime', ele: '#runtime_filter', type: 'range'});
 
   	  window.FJS = FJS;
