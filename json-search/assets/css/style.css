@@ -482,3 +482,8 @@ h2{
     display: inline-flex;
     padding-bottom: 150px;
 }
+
+.nagrania-kznh td {
+    padding-left: 10px;
+    padding-right: 10px;
+}

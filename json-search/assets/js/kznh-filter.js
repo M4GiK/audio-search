@@ -89,6 +89,12 @@ function initSliders(){
   });
 }
 
+function showPlayPanel(button) {
+    $(button).after('<object type="application/x-shockwave-flash" data="http://www.kznh.pl/piesni/audio/player.swf" id="audioplayer1" height="24" width="416" align="middle"> <param name="movie" value="http://www.kznh.pl/piesni/audio/player.swf"><param name="FlashVars" value="playerID=audioplayer1&soundFile=http://www.kznh.pl/'+ button.value +'"><param name="quality" value="high"><param name="menu" value="false"><param name="wmode" value="transparent"></object>');
+    $(button).remove();
+}
+
+
 $(window).load(function(){
     changeContent = function(key) {
         html = textHash[key];
