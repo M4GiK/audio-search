@@ -12,7 +12,8 @@ div#space
 div#container
 {
    width: 1280px;
-   height: 1861px;
+   min-height: 1861px;
+   height:auto;
    margin: 0 auto;
    position: relative;
    clear: left;
@@ -285,13 +286,13 @@ a:hover
 }
 
 .kznh-search {
-    position: absolute;
-    left: 170px;
-    top: 144px;
-    width: 679px;
-    height: auto;
-    border-width: 0px;
-    z-index: 13;
+     left: 30px;
+     top: 144px;
+     width: 679px;
+     height: auto;
+     border-width: 0px;
+     position: relative;
+     z-index: 13;
 }
 
 .clear {
@@ -470,4 +471,14 @@ h2{
     font-size: 16px;
     line-height: 19px;
     text-align: center;
+}
+
+#wb_Image7 {
+    left: 140px;
+    top: 0px;
+    width: 1001px;
+    position: relative;
+    background-color: #00191f;
+    display: inline-flex;
+    padding-bottom: 150px;
 }
