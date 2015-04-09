@@ -9,7 +9,6 @@ jQuery.getJSON("assets/library/lib.json", function(data, textStatus) {
 				movies.push(value);			
 			}
 		});
-		
 	} else {
 		alert("JSON non-success status: " + textStatus);
 	}

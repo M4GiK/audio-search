@@ -28,10 +28,98 @@
 <div id="space"><br></div>
 <div id="container">
 
-<div id="wb_Image7"
-     style="position:absolute;left:140px;top:0px;width:1001px;height:1800px;filter:alpha(opacity=50);-moz-opacity:0.50;opacity:0.50;z-index:0;">
-    <img src="assets/images/img0126.jpg" id="Image7" alt=""
-         style="width:1001px;height:1800px;"></div>
+<div id="wb_Image7">
+    <!--<img src="assets/images/img0126.jpg" id="Image7" alt="" style="width:1001px;height:auto; filter:alpha(opacity=50);-moz-opacity:0.50;opacity:0.50;">-->
+
+    <div class="kznh-search">
+        <h1 class="title">Wszystkie nagrania</h1>
+
+        <div class="sidebar col-span-3">
+            <div class="criteria" id="runtime_criteria">
+                <h4>Mówcy</h4>
+                <select id="mowcy" class="col-span-10">
+                    <option value="all">Wszyscy</option>
+                </select>
+            </div>
+
+            <div class="criteria" id="year_criteria">
+                <h4>Rok</h4>
+                <select id="year_filter" class="col-span-10">
+                    <option value="all">Wszystkie (1999 - 2015)</option>
+                    <option value="1999-1999">1999 rok</option>
+                    <option value="2000-2000">2000 rok</option>
+                    <option value="2001-2001">2001 rok</option>
+                    <option value="2002-2002">2002 rok</option>
+                    <option value="2003-2003">2003 rok</option>
+                    <option value="2004-2004">2004 rok</option>
+                    <option value="2005-2005">2005 rok</option>
+                    <option value="2006-2006">2006 rok</option>
+                    <option value="2007-2007">2007 rok</option>
+                    <option value="2008-2008">2008 rok</option>
+                    <option value="2009-2009">2009 rok</option>
+                    <option value="2010-2010">2010 rok</option>
+                    <option value="2011-2011">2011 rok</option>
+                    <option value="2012-2012">2012 rok</option>
+                    <option value="2013-2013">2013 rok</option>
+                    <option value="2014-2014">2014 rok</option>
+                    <option value="2015-2015">2015 rok</option>
+                </select>
+            </div>
+        </div>
+        <div class="sidebar col-span-9">
+            <div class="row">
+                <h4 class="col-span-6"> Nagrania (<span id="total_movies">0</span>)
+                </h4>
+            </div>
+            <div>
+                <input type="text" id="searchbox" placeholder="Szukaj...">
+                <span class="glyphicon glyphicon-search search-icon"></span>
+            </div>
+            <div class="sorting content col-span-12">
+            </div>
+            <div class="movies content col-span-12" id="movies">
+            </div>
+
+            <script id="movie-template" type="text/html">
+                <div class="col-span-12 movie">
+
+                    <table class="nagrania-kznh" border="1"  bordercolorlight="#C1CFDC" bordercolordark="#C1CFDC" height="84"  align="center">
+                        <tr>
+                            <td align="center" height="15" width="500"><b>NAGRANIE</b></td>
+                            <td align="center" height="15"  width="50"><b>POBIERZ</b></td>
+                        </tr>
+
+                        <tr class="kazania_pastor">
+                            <td width="500" height="69">
+                                <div class="caption">
+                                    <h4><%= title %></h4>
+                                </div>
+
+                            <span class="runtime">
+                                <i class="glyphicon glyphicon-time"></i>
+                                <%= lenght %>
+                            </span>
+
+                                <div class="detail">
+                                    <b style="font-size: 11px;"> <%= artist %> </b>
+                                </div>
+                                <br>
+                            </td>
+                            <td class="pobierz" width="50" height="69"><a href="<%= webdirectory %>"> <img border="0" src="assets/images/Floppy.gif" width="22" height="22" alt="Pobierz nagranie"></a></td>
+                        </tr>
+
+                        <tr class="kazania_pastor">
+                            <td colspan="2" height="44">
+                                <input type="image" value="<%= webdirectory %>" onclick="showPlayPanel(this)" id="imageplay" style="height:40px; z-index: 50" src="assets/images/play.png" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </script>
+
+        </div>
+    </div>
+</div>
 <div id="wb_Image2"
      style="position:absolute;left:156px;top:1px;width:87px;height:105px;z-index:5;">
     <img src="assets/images/logo.png" id="Image2" alt=""
@@ -90,99 +178,6 @@
         style="color:#000000;font-family:Arial;font-size:24px;"><br></span>
 </div>
 
-<div class="kznh-search">
-    <h1 class="title">Wszystkie nagrania</h1>
-
-    <div class="sidebar col-span-3">
-        <div class="criteria" id="runtime_criteria">
-            <h4>Mówcy</h4>
-            <select id="mowcy" class="col-span-10">
-                <option value="all">Wszyscy</option>
-            </select>
-        </div>
-
-        <div class="criteria" id="year_criteria">
-            <h4>Rok</h4>
-            <select id="year_filter" class="col-span-10">
-                <option value="all">Wszystkie (1999 - 2015)</option>
-                <option value="1999-1999">1999 rok</option>
-                <option value="2000-2000">2000 rok</option>
-                <option value="2001-2001">2001 rok</option>
-                <option value="2002-2002">2002 rok</option>
-                <option value="2003-2003">2003 rok</option>
-                <option value="2004-2004">2004 rok</option>
-                <option value="2005-2005">2005 rok</option>
-                <option value="2006-2006">2006 rok</option>
-                <option value="2007-2007">2007 rok</option>
-                <option value="2008-2008">2008 rok</option>
-                <option value="2009-2009">2009 rok</option>
-                <option value="2010-2010">2010 rok</option>
-                <option value="2011-2011">2011 rok</option>
-                <option value="2012-2012">2012 rok</option>
-                <option value="2013-2013">2013 rok</option>
-                <option value="2014-2014">2014 rok</option>
-                <option value="2015-2015">2015 rok</option>
-            </select>
-        </div>
-    </div>
-    <div class="sidebar col-span-9">
-        <div class="row">
-            <h4 class="col-span-6"> Nagrania (<span id="total_movies">0</span>)
-            </h4>
-        </div>
-        <div>
-            <input type="text" id="searchbox" placeholder="Szukaj...">
-            <span class="glyphicon glyphicon-search search-icon"></span>
-        </div>
-        <div class="sorting content col-span-12">
-        </div>
-        <div class="movies content col-span-12" id="movies">
-        </div>
-
-        <script id="movie-template" type="text/html">
-            <div class="col-span-12 movie">
-
-                <table class="nagrania-kznh" border="1"  bordercolorlight="#C1CFDC" bordercolordark="#C1CFDC" height="84"  align="center">
-                    <tr>
-                        <td align="center" height="15" width="500"><b>NAGRANIE</b></td>
-                        <td align="center" height="15"  width="50"><b>POBIERZ</b></td>
-                    </tr>
-
-                    <tr class="kazania_pastor">
-                        <td width="500" height="69">
-                            <div class="caption">
-                                <h4><%= title %></h4>
-                            </div>
-
-                            <span class="runtime">
-                                <i class="glyphicon glyphicon-time"></i>
-                                <%= lenght %>
-                            </span>
-
-                            <div class="detail">
-                                <b style="font-size: 11px;"> <%= artist %> </b>
-                            </div>
-                            <br>
-                            </td>
-                        <td class="pobierz" width="50" height="69"><a href="<%= webdirectory %>"> <img border="0" src="assets/images/Floppy.gif" width="22" height="22" alt="Pobierz nagranie"></a></td>
-                    </tr>
-
-                    <tr class="kazania_pastor">
-                        <td colspan="2" height="36">
-                            <object type="application/x-shockwave-flash" data="http://www.kznh.pl/piesni/audio/player.swf" id="audioplayer1" height="24" width="416" align="middle">
-                                <param name="movie" value="http://www.kznh.pl/piesni/audio/player.swf">
-                                <param name="FlashVars" value="playerID=audioplayer1&soundFile=http://www.kznh.pl/<%= webdirectory %>">
-                                <param name="quality" value="high">
-                                <param name="menu" value="false">
-                                <param name="wmode" value="transparent">
-                            </object></td>
-                    </tr>
-                </table>
-            </div>
-        </script>
-
-    </div>
-</div>
 
 </div>
 
