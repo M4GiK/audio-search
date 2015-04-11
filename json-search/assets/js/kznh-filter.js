@@ -1,60 +1,77 @@
-$(document).ready(function(){
+var movies = [];
 
-  initSliders();
+jQuery.getJSON("../../nagrania/lib.json", function(data, textStatus) {
+	if (textStatus == "success") {
+		jQuery.each(data, function(key, value) {
+			if (key != "_comment") {
+				value.webdirectory = value["web-directory"];
+				delete value["web-directory"];			
+				movies.push(value);	
+			}
+		});
+	} else {
+		alert("JSON non-success status: " + textStatus);
+	}
 
-  //NOTE: To append in different container
-  var appendToContainer = function(htmlele, record){
-    console.log(record)
-  };
+    $(document).ready(function(){
 
-  var FJS = FilterJS(movies, '#movies', {
-    template: '#movie-template',
-    search: {ele: '#searchbox'},
-    //search: {ele: '#searchbox', fields: ['runtime']}, // With specific fields
-    callbacks: {
-      afterFilter: function(result){
-        $('#total_movies').text(result.length);
-      }
-    }
-    //appendToContainer: appendToContainer
-  });
-  
-  var speakers = [];
+      initSliders();
 
-  jQuery.getJSON("assets/library/lib.json", function(data, textStatus) {
-  	if (textStatus == "success") {
-  		jQuery.each(data, function(key, value) {
-  			if (key != "_comment") {
-  				jQuery.each(value, function(key, value) {
-  					if (key == "artist") {
-  						if (value != "") {
-  							speakers.push(value);
-  						}
-  					}
-  				});
-  			}
-  		});
-  		
-  		var uniqueNames = speakers.filter(function(item, pos) {
-  		    return speakers.indexOf(item) == pos;
-  		})
-  		
-  		uniqueNames.sort();
+      //NOTE: To append in different container
+      var appendToContainer = function(htmlele, record){
+        console.log(record)
+      };
 
-  		jQuery.each(uniqueNames, function(i, value){
-  		    jQuery('#mowcy').append(jQuery("<option></option>").attr("value", value).text(value)); 
-  		});
-  		
-  	  FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
-  	  FJS.addCriteria({field: 'artist', ele: '#mowcy', all: 'all'});
-  	  //  FJS.addCriteria({field: 'runtime', ele: '#runtime_filter', type: 'range'});
+      var FJS = FilterJS(movies, '#movies', {
+        template: '#movie-template',
+        search: {ele: '#searchbox'},
+        //search: {ele: '#searchbox', fields: ['runtime']}, // With specific fields
+        callbacks: {
+          afterFilter: function(result){
+            $('#total_movies').text(result.length);
+          }
+        }
+        //appendToContainer: appendToContainer
+      });
 
-  	  window.FJS = FJS;
-  		
-  	} else {
-  		alert("JSON non-success status: " + textStatus);
-  	}
-  });
+      var speakers = [];
+
+      jQuery.getJSON("../../nagrania/lib.json", function(data, textStatus) {
+        if (textStatus == "success") {
+            jQuery.each(data, function(key, value) {
+                if (key != "_comment") {
+                    jQuery.each(value, function(key, value) {
+                        if (key == "artist") {
+                            if (value != "") {
+                                speakers.push(value);
+                            }
+                        }
+                    });
+                }
+            });
+
+            var uniqueNames = speakers.filter(function(item, pos) {
+                return speakers.indexOf(item) == pos;
+            })
+
+            uniqueNames.sort();
+
+            jQuery.each(uniqueNames, function(i, value){
+                jQuery('#mowcy').append(jQuery("<option></option>").attr("value", value).text(value));
+            });
+
+          FJS.addCriteria({field: 'year', ele: '#year_filter', type: 'range', all: 'all'});
+          FJS.addCriteria({field: 'artist', ele: '#mowcy', all: 'all'});
+          //  FJS.addCriteria({field: 'runtime', ele: '#runtime_filter', type: 'range'});
+
+          window.FJS = FJS;
+
+        } else {
+            alert("JSON non-success status: " + textStatus);
+        }
+      });
+
+    });
 
 });
 
@@ -111,5 +128,4 @@ $(document).ready(function() {
       $(this).children("span").stop().fadeTo(500, 1);
    });
 });
-
 
