@@ -1,6 +1,6 @@
 var movies = [];
 
-jQuery.getJSON("../../nagrania/lib.json", function(data, textStatus) {
+jQuery.getJSON("../../nagrania/kazania/lib.json", function(data, textStatus) {
 	if (textStatus == "success") {
 		jQuery.each(data, function(key, value) {
 			if (key != "_comment") {
@@ -36,7 +36,7 @@ jQuery.getJSON("../../nagrania/lib.json", function(data, textStatus) {
 
       var speakers = [];
 
-      jQuery.getJSON("../../nagrania/lib.json", function(data, textStatus) {
+      jQuery.getJSON("../../nagrania/kazania/lib.json", function(data, textStatus) {
         if (textStatus == "success") {
             jQuery.each(data, function(key, value) {
                 if (key != "_comment") {
@@ -107,7 +107,7 @@ function initSliders(){
 }
 
 function showPlayPanel(button) {
-    $(button).after('<object type="application/x-shockwave-flash" data="http://www.kznh.pl/piesni/audio/player.swf" id="audioplayer1" height="24" width="416" align="middle"> <param name="movie" value="http://www.kznh.pl/piesni/audio/player.swf"><param name="FlashVars" value="playerID=audioplayer1&soundFile=http://www.kznh.pl/'+ button.value +'"><param name="quality" value="high"><param name="menu" value="false"><param name="wmode" value="transparent"></object>');
+    $(button).after('<audio src="http://www.kznh.pl/'+ button.value +'" controls="controls"></audio>');
     $(button).remove();
 }
 
