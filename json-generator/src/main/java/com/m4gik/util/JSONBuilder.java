@@ -159,7 +159,7 @@ public class JSONBuilder {
                 information.put("album", "");
             }
 
-            information.put("lenght", getTime(mp3File.getMP3AudioHeader()
+            information.put("length", getTime(mp3File.getMP3AudioHeader()
                     .getTrackLength()));
             information.put("bit rate", mp3File.getMP3AudioHeader()
                     .getBitRate());
