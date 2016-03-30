@@ -341,7 +341,7 @@ public class JSONBuilder {
             information.put("album", "");
         }
 
-        information.put("lenght", getTime(fileInformation.getAudioHeader()
+        information.put("length", getTime(fileInformation.getAudioHeader()
                 .getTrackLength() * 1000));
         information.put("bit rate", fileInformation.getAudioHeader()
                 .getBitRate());
